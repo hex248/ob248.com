@@ -1,8 +1,30 @@
 import { createCliRenderer } from "@opentui/core";
-import { createRoot, useKeyboard, useTerminalDimensions } from "@opentui/react";
+import {
+	createRoot,
+	useKeyboard,
+	useRenderer,
+	useTerminalDimensions,
+} from "@opentui/react";
+import { useEffect } from "react";
 
 function App() {
 	const { width, height } = useTerminalDimensions();
+	const renderer = useRenderer();
+
+	useEffect(() => {
+		const handleExit = () => {
+			renderer.cleanup();
+			process.exit(0);
+		};
+
+		process.on("SIGINT", handleExit);
+		process.on("SIGTERM", handleExit);
+
+		return () => {
+			process.off("SIGINT", handleExit);
+			process.off("SIGTERM", handleExit);
+		};
+	}, [renderer]);
 
 	useKeyboard((key) => {
 		if (
@@ -10,6 +32,7 @@ function App() {
 			key.name === "escape" ||
 			(key.ctrl && key.name === "c")
 		) {
+			renderer.cleanup();
 			process.exit(0);
 		}
 	});
