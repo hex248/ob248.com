@@ -58,7 +58,7 @@ function Home() {
 		<div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
 			<div className="flex flex-col items-center gap-8 mb-4">
 				{asciiArt ? (
-					<pre className="text-[#000000] leading-1.75 tracking-[-1.75px]">
+					<pre className="text-[#000000] dark:text-[#ffffff] leading-1.75 tracking-[-1.75px]">
 						<code className="commitmono text-[11px]">{asciiArt}</code>
 					</pre>
 				) : null}
