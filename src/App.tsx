@@ -7,6 +7,13 @@ import { ThemeToggle } from "./components/theme-toggle";
 const asciiFiles = [
 	"cat-sleep.txt",
 	// "polar-bear.txt",
+	"penguin-surfboard.txt",
+	"cat-shock.txt",
+	"exclamation.txt",
+	"fat-cat-head.txt",
+	"grumpy-dog.txt",
+	"cat-peek.txt",
+	"cat-loaf.txt",
 ];
 
 function App() {
@@ -46,14 +53,16 @@ function Home() {
 	}, [asciiFile]);
 
 	return (
-		<div className="min-h-dvh flex flex-col items-center justify-center gap-8 text-2xl px-6 py-10">
-			<div className="flex flex-col items-center gap-4">
+		<div className="min-h-dvh flex flex-col items-center gap-8 text-2xl px-6 py-10">
+			<div className="flex flex-col items-center gap-8">
 				{asciiArt ? (
-					<pre className="leading-2.25">
+					<pre className="leading-1.75 tracking-[-1.75px]">
 						<code className="commitmono text-[11px]">{asciiArt}</code>
 					</pre>
 				) : null}
-				<h1 className="basteleur-bold text-8xl text-balance">Oliver Bryan</h1>
+				<h1 className="text-center basteleur-bold text-8xl text-balance">
+					Oliver Bryan
+				</h1>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
 				{sortedProjects.map((project) => (
