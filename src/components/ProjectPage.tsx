@@ -1,8 +1,8 @@
-import { getProjectPrompt } from "@/lib/constants";
-import type { ProjectMetadata } from "@/projects";
 import { Home } from "@nsmr/pixelart-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { getProjectPrompt } from "@/lib/constants";
+import type { ProjectMetadata } from "@/projects";
 import { AskAI } from "./ask-ai";
 
 export function ProjectPage({

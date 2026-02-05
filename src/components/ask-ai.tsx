@@ -1,8 +1,8 @@
-import { AI_SUMMARY_PROMPT } from "@/lib/constants";
-import { cn } from "@/lib/utils";
 import { Icon } from "@iconify/react";
 import { Copy } from "@nsmr/pixelart-react";
 import { useRef, useState } from "react";
+import { AI_SUMMARY_PROMPT } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 
 const chatGptUrl = "https://chat.openai.com/?q=";
 const claudeUrl = "https://claude.ai/new?q=";

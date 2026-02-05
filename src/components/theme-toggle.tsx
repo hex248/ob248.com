@@ -1,6 +1,6 @@
+import { Moon, Sun } from "@nsmr/pixelart-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "@nsmr/pixelart-react";
 
 export function ThemeToggle() {
 	const { resolvedTheme, setTheme } = useTheme();

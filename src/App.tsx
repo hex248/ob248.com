@@ -1,9 +1,9 @@
-import { AskAI } from "@/components/ask-ai";
-import { ProjectListItem } from "@/components/ProjectListItem";
-import { type ProjectEntry, projectList, projects } from "@/projects";
 import { Downasaur, Home as HomeIcon } from "@nsmr/pixelart-react";
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useParams } from "react-router-dom";
+import { AskAI } from "@/components/ask-ai";
+import { ProjectListItem } from "@/components/ProjectListItem";
+import { type ProjectEntry, projectList, projects } from "@/projects";
 import { ThemeToggle } from "./components/theme-toggle";
 
 const asciiFiles = [
