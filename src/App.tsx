@@ -60,7 +60,7 @@ function Home() {
 						<code className="commitmono text-[11px]">{asciiArt}</code>
 					</pre>
 				) : null}
-				<h1 className="text-center basteleur-bold text-8xl text-balance">
+				<h1 className="text-center picnic text-8xl text-balance">
 					Oliver Bryan
 				</h1>
 			</div>
