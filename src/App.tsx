@@ -1,7 +1,14 @@
+import { useEffect, useState } from "react";
+import { Link, Route, Routes, useParams } from "react-router-dom";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { type ProjectEntry, projectList, projects } from "@/projects";
-import { Link, Route, Routes, useParams } from "react-router-dom";
 import { ThemeToggle } from "./components/theme-toggle";
+
+const asciiFiles = [
+	"cat-sleep.txt",
+	"polar-bear.txt",
+	"sleep-cat-ascii-art.txt",
+];
 
 function App() {
 	return (
@@ -17,16 +24,37 @@ export default App;
 
 function Home() {
 	const isDevMode = import.meta.env.VITE_PUBLIC_DEV === "1";
+	const [asciiArt, setAsciiArt] = useState("");
+	const [asciiFile] = useState(
+		() => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
+	);
 	const sortedProjects: ProjectEntry[] = [...projectList].sort(
 		(a, b) =>
 			parseDate(b.metadata.date).getTime() -
 			parseDate(a.metadata.date).getTime(),
 	);
 
+	useEffect(() => {
+		let isActive = true;
+		fetch(`/ascii/${asciiFile}`)
+			.then((response) => response.text())
+			.then((text) => {
+				if (isActive) setAsciiArt(text);
+			});
+		return () => {
+			isActive = false;
+		};
+	}, [asciiFile]);
+
 	return (
 		<div className="min-h-dvh flex flex-col items-center justify-center gap-8 text-2xl px-6 py-10">
 			<div className="flex flex-col items-center gap-4">
-				<h1 className="picnic text-7xl text-balance">Oliver Bryan</h1>
+				{/* {asciiArt ? (
+					<pre className="leading-2.25">
+						<code className="commitmono text-[11px]">{asciiArt}</code>
+					</pre>
+				) : null} */}
+				<h1 className="picnic text-8xl text-balance">Oliver Bryan</h1>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
 				{sortedProjects.map((project) => (
