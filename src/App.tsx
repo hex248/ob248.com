@@ -76,7 +76,12 @@ function Home() {
 				))}
 			</div>
 			<div className="w-full max-w-5xl flex items-center justify-between gap-4">
-				<AskAI name="me" inline />
+				<div className="flex items-center gap-6">
+					<a href="/cv.pdf" className="text-lg text-fg hover:text-accent">
+						CV/RESUME
+					</a>
+					<AskAI name="me" inline />
+				</div>
 				<ThemeToggle />
 			</div>
 		</div>
