@@ -1,11 +1,17 @@
-import { Downasaur, Home as HomeIcon } from "@nsmr/pixelart-react";
+import {
+	Downasaur,
+	Github,
+	Home as HomeIcon,
+	Mail,
+	Notes,
+} from "@nsmr/pixelart-react";
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useParams } from "react-router-dom";
 import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
+import { TimeSince } from "@/components/time-since";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { ThemeToggle } from "./components/theme-toggle";
-import { Github, Mail, Notes } from "@nsmr/pixelart-react";
 
 const asciiFiles = [
 	"cat-sleep.txt",
@@ -57,7 +63,7 @@ function Home() {
 
 	return (
 		<div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
-			<div className="flex flex-col items-center gap-8 mb-4">
+			<div className="flex flex-col items-center gap-4 mb-4">
 				{asciiArt ? (
 					<pre className="text-[#000000] dark:text-[#ffffff] leading-1.75 tracking-[-1.75px]">
 						<code className="commitmono text-[11px]">{asciiArt}</code>
@@ -91,6 +97,9 @@ function Home() {
 					>
 						<Notes className="size-6" /> CV
 					</a>
+				</div>
+				<div className="text-base text-fg">
+					Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
 				</div>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
