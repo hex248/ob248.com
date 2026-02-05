@@ -1,6 +1,6 @@
+import { Link } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import type { ProjectMetadata } from "@/projects";
-import { Link } from "react-router-dom";
 
 export function ProjectListItem({
 	metadata,
@@ -16,10 +16,8 @@ export function ProjectListItem({
 		<Link
 			to={`/projects/${metadata.slug}`}
 			className={cn(
-				"group block flex flex-col justify-between rounded-md transition-colors duration-200 border-2 hover:border-accent",
-				isDevMode && metadata.hidden
-					? "border-dashed border-accent"
-					: "border-gutter-dim",
+				"group block flex flex-col justify-between transition-colors duration-200 border-2 hover:border-accent",
+				isDevMode && metadata.hidden && "border-dashed border-accent",
 			)}
 			data-tags={tags.join(",")}
 		>
@@ -32,7 +30,7 @@ export function ProjectListItem({
 							className="w-full h-full object-cover rounded"
 						/>
 					) : (
-						<div className="w-full h-full border border-gutter rounded" />
+						<div className="w-full h-full border rounded" />
 					)}
 				</div>
 				<div className="flex flex-col gap-2">
@@ -45,7 +43,7 @@ export function ProjectListItem({
 							{tags.map((tag) => (
 								<span
 									key={tag}
-									className="flex items-center text-fg font-500 rounded-md border border-gutter px-1.5 py-0.5"
+									className="flex items-center text-fg font-500 rounded-sm border px-1.5 py-0.5"
 								>
 									{tag}
 								</span>
@@ -55,9 +53,7 @@ export function ProjectListItem({
 				</div>
 			</div>
 			<div className="w-full flex justify-end p-2 pt-1">
-				<p className="text-xs text-gutter group-hover:text-accent">
-					{metadata.date}
-				</p>
+				<p className="text-xs group-hover:text-accent">{metadata.date}</p>
 			</div>
 		</Link>
 	);

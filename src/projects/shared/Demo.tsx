@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 type DemoProps = {
 	image: string;
@@ -13,7 +13,7 @@ export function Demo({ image, title, type = "plain", children }: DemoProps) {
 		<figure
 			className={cn(
 				"w-full",
-				type === "boxed" && "border border-gutter rounded bg-highlight p-2",
+				type === "boxed" && "border rounded bg-muted p-2",
 			)}
 		>
 			<img
@@ -21,7 +21,7 @@ export function Demo({ image, title, type = "plain", children }: DemoProps) {
 				alt={title}
 				className={cn("w-full", type === "boxed" ? "rounded" : "rounded-md")}
 			/>
-			<figcaption className="mt-2 text-sm text-gutter text-pretty">
+			<figcaption className="mt-2 text-sm text-pretty">
 				{title}
 				{children}
 			</figcaption>

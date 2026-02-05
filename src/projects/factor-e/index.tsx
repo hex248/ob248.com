@@ -42,7 +42,7 @@ export function FactorEProject() {
 			</p>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div className="bg-highlight p-4 rounded mt-4">
+				<div className="bg-muted p-4 rounded mt-4">
 					<h2 className="text-lg text-green-500 mb-2 text-balance">
 						Key features
 					</h2>
@@ -59,7 +59,7 @@ export function FactorEProject() {
 					</ul>
 				</div>
 
-				<div className="bg-highlight p-4 rounded mt-4">
+				<div className="bg-muted p-4 rounded mt-4">
 					<h2 className="text-lg text-green-500 mb-2 text-balance">
 						Technologies
 					</h2>

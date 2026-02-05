@@ -22,7 +22,7 @@ export function ShleepProject() {
 				help aid you and your party to protect a sleeping child from nightmares.
 			</p>
 
-			<div className="bg-highlight p-4 rounded mt-4">
+			<div className="bg-muted p-4 rounded mt-4">
 				<h2 className="text-lg text-green-500 mb-2 text-balance">
 					Technologies
 				</h2>
