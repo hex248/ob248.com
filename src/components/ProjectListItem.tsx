@@ -16,11 +16,16 @@ export function ProjectListItem({
 		<Link
 			to={`/projects/${metadata.slug}`}
 			className={cn(
-				"group block flex flex-col justify-between transition-colors duration-200 border-2 hover:border-accent",
+				"group relative block flex flex-col justify-between transition-colors duration-200 border-2 hover:border-accent",
 				isDevMode && metadata.hidden && "border-dashed border-accent",
 			)}
 			data-tags={tags.join(",")}
 		>
+			{metadata.type === "professional" ? (
+				<span className="absolute -right-0.5 -top-0.5 bg-accent px-1.5 py-0.5 text-xs font-500 text-background">
+					Professional
+				</span>
+			) : null}
 			<div className="flex gap-4 p-4 pb-0">
 				<div className="w-16 h-16 flex-shrink-0">
 					{metadata.image ? (
