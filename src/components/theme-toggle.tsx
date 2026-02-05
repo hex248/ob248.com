@@ -1,3 +1,4 @@
+import { Moon, Sun } from "@nsmr/pixelart-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
 
@@ -11,7 +12,7 @@ function ThemeToggle() {
 			size="sm"
 			onClick={() => setTheme(isDark ? "light" : "dark")}
 		>
-			{isDark ? "light" : "dark"}
+			{isDark ? <Sun /> : <Moon />}
 		</Button>
 	);
 }
