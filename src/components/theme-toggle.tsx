@@ -1,6 +1,6 @@
-import { Moon, Sun } from "@nsmr/pixelart-react";
 import { useTheme } from "@/components/theme-provider";
 import { Button } from "@/components/ui/button";
+import { Moon, Sun } from "@nsmr/pixelart-react";
 
 export function ThemeToggle() {
 	const { resolvedTheme, setTheme } = useTheme();
@@ -8,11 +8,12 @@ export function ThemeToggle() {
 
 	return (
 		<Button
-			variant="outline"
-			size="sm"
+			variant="dummy"
+			size="icon-sm"
 			onClick={() => setTheme(isDark ? "light" : "dark")}
+			className="hover:fill-accent hover:text-accent"
 		>
-			{isDark ? <Sun /> : <Moon />}
+			{isDark ? <Sun className="size-6" /> : <Moon className="size-6" />}
 		</Button>
 	);
 }

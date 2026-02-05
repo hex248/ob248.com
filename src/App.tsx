@@ -1,12 +1,14 @@
+import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { type ProjectEntry, projectList, projects } from "@/projects";
+import { Downasaur, Home as HomeIcon } from "@nsmr/pixelart-react";
 import { useEffect, useState } from "react";
 import { Link, Route, Routes, useParams } from "react-router-dom";
 import { ThemeToggle } from "./components/theme-toggle";
 
 const asciiFiles = [
 	"cat-sleep.txt",
-	// "polar-bear.txt",
+	"polar-bear.txt",
 	"penguin-surfboard.txt",
 	"cat-shock.txt",
 	"exclamation.txt",
@@ -53,10 +55,10 @@ function Home() {
 	}, [asciiFile]);
 
 	return (
-		<div className="min-h-dvh flex flex-col items-center gap-8 text-2xl px-6 py-10">
-			<div className="flex flex-col items-center gap-8">
+		<div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
+			<div className="flex flex-col items-center gap-8 mb-4">
 				{asciiArt ? (
-					<pre className="leading-1.75 tracking-[-1.75px]">
+					<pre className="text-[#000000] leading-1.75 tracking-[-1.75px]">
 						<code className="commitmono text-[11px]">{asciiArt}</code>
 					</pre>
 				) : null}
@@ -73,7 +75,10 @@ function Home() {
 					/>
 				))}
 			</div>
-			<ThemeToggle />
+			<div className="w-full max-w-5xl flex items-center justify-between gap-4">
+				<AskAI name="me" inline />
+				<ThemeToggle />
+			</div>
 		</div>
 	);
 }
@@ -88,14 +93,31 @@ function ProjectRoute() {
 
 function NotFound() {
 	return (
-		<div className="min-h-dvh flex flex-col items-center justify-center gap-4 text-2xl">
-			<h1 className="text-4xl text-accent text-balance">Not found</h1>
-			<Link className="text-accent underline" to="/">
-				Go home
+		<div
+			className={`w-full h-[100vh] flex flex-col items-center justify-center gap-4`}
+		>
+			<span className="-ml-14 -mb-7 -rotate-20 text-xl text-accent">?</span>
+			<Downasaur size={72} className="text-accent" />
+			<span className="text-7xl">404</span>
+			<span className="text-2xl">Not Found</span>
+
+			<Link to="/">
+				<HomeIcon className="size-12 hover:text-accent" />
 			</Link>
 		</div>
 	);
 }
+
+// function NotFound() {
+// 	return (
+// 		<div className="min-h-dvh flex flex-col items-center justify-center gap-4 text-2xl">
+// 			<Downasaur className="size-24 text-accent" />
+// 			<Link to="/">
+// 				<HomeIcon className="size-12 hover:text-accent" />
+// 			</Link>
+// 		</div>
+// 	);
+// }
 
 function parseDate(dateStr: string): Date {
 	const lower = dateStr.toLowerCase();

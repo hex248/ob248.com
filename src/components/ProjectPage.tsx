@@ -1,22 +1,26 @@
+import { getProjectPrompt } from "@/lib/constants";
+import type { ProjectMetadata } from "@/projects";
+import { Home } from "@nsmr/pixelart-react";
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
-import type { ProjectMetadata } from "@/projects";
+import { AskAI } from "./ask-ai";
 
-type ProjectPageProps = {
+export function ProjectPage({
+	metadata,
+	children,
+}: {
 	metadata: ProjectMetadata;
 	children: ReactNode;
-};
-
-export function ProjectPage({ metadata, children }: ProjectPageProps) {
+}) {
 	const tags = metadata.tags ? [...metadata.tags].sort() : [];
 
 	return (
-		<div className="mx-auto w-full max-w-4xl px-6 py-10 text-md">
+		<div className="mx-auto w-full max-w-4xl px-6 py-4 text-md border my-8">
 			<Link
 				to="/"
-				className="inline-flex items-center text-sm text-green-500 hover:underline mb-4"
+				className="inline-flex items-center text-sm hover:text-accent mb-4"
 			>
-				Home
+				<Home />
 			</Link>
 			<div className="flex flex-wrap items-start justify-between gap-6 mb-4">
 				<div className="flex flex-col gap-2">
@@ -33,19 +37,27 @@ export function ProjectPage({ metadata, children }: ProjectPageProps) {
 						<div className="w-24 h-24 mb-2 border rounded" />
 					)}
 				</div>
-				<div className="flex flex-col items-end gap-2">
-					{metadata.url ? (
-						<a
-							href={metadata.url}
-							target="_blank"
-							rel="noopener noreferrer"
-							className="link-project-page inline-block text-sm"
-						>
-							Try {metadata.title}
-						</a>
-					) : null}
-				</div>
+				<AskAI
+					name={metadata.title}
+					prompt={getProjectPrompt(
+						metadata.title,
+						metadata.description,
+						metadata.slug,
+					)}
+				/>
 			</div>
+			{metadata.url ? (
+				<div className="flex flex-col mb-2">
+					<a
+						href={metadata.url}
+						target="_blank"
+						rel="noopener noreferrer"
+						className="link-project-page inline-block text-accent hover:underline underline-offset-2 text-sm"
+					>
+						Try {metadata.title}
+					</a>
+				</div>
+			) : null}
 
 			<p className="text-sm mb-2">
 				{metadata.date}
