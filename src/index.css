@@ -1,6 +1,8 @@
 @import url("https://fonts.ob248.com/commitmono");
 @import url("https://fonts.ob248.com/ft88");
+@import url("https://fonts.ob248.com/ft88-gothique");
 @import url("https://fonts.ob248.com/picnic");
+@import url("https://fonts.ob248.com/basteleur");
 
 @import "tailwindcss";
 
@@ -149,7 +151,22 @@ body {
 	font-weight: 200;
 }
 
+.ft88-gothique {
+	font-family: "FT88 Gothique", serif;
+	font-weight: 200;
+}
+
+.basteleur {
+	font-family: "Basteleur", serif;
+	font-weight: 400;
+}
+
+.basteleur-bold {
+	font-family: "Basteleur", serif;
+	font-weight: 700;
+}
+
 .picnic {
 	font-family: "PicNic", serif;
-	font-weight: 400;
+	font-weight: 700;
 }

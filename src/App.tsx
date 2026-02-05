@@ -53,7 +53,7 @@ function Home() {
 						<code className="commitmono text-[11px]">{asciiArt}</code>
 					</pre>
 				) : null}
-				<h1 className="picnic text-8xl text-balance">Oliver Bryan</h1>
+				<h1 className="basteleur-bold text-8xl text-balance">Oliver Bryan</h1>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
 				{sortedProjects.map((project) => (
