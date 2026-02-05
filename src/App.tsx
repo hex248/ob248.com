@@ -5,6 +5,7 @@ import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { ThemeToggle } from "./components/theme-toggle";
+import { Github, Mail, Notes } from "@nsmr/pixelart-react";
 
 const asciiFiles = [
 	"cat-sleep.txt",
@@ -65,6 +66,32 @@ function Home() {
 				<h1 className="text-center picnic text-8xl text-balance">
 					Oliver Bryan
 				</h1>
+				<div className="flex flex-wrap items-center justify-center gap-3 text-base text-fg">
+					<a
+						href="https://github.com/hex248"
+						rel="noreferrer"
+						target="_blank"
+						className="inline-flex items-center gap-2 hover:text-accent"
+					>
+						<Github className="size-6" />
+						hex248
+					</a>
+					<span className="text-fg/60">/</span>
+					<a
+						href="mailto:ob248@proton.me"
+						className="inline-flex items-center gap-2 hover:text-accent"
+					>
+						<Mail className="size-6" />
+						ob248@proton.me
+					</a>
+					<span className="text-fg/60">/</span>
+					<a
+						href="/cv.pdf"
+						className="inline-flex items-center gap-2 hover:text-accent"
+					>
+						<Notes className="size-6" /> CV
+					</a>
+				</div>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
 				{sortedProjects.map((project) => (
@@ -77,9 +104,6 @@ function Home() {
 			</div>
 			<div className="w-full max-w-5xl flex items-center justify-between gap-4">
 				<div className="flex items-center gap-6">
-					<a href="/cv.pdf" className="text-lg text-fg hover:text-accent">
-						CV/RESUME
-					</a>
 					<AskAI name="me" inline />
 				</div>
 				<ThemeToggle />
