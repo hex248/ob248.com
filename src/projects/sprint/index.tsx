@@ -36,8 +36,8 @@ export function SprintProject() {
 			</p>
 
 			<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-				<div className="bg-ayu-highlight p-4 rounded">
-					<h2 className="text-lg text-ayu-green-500 mb-2 text-balance">
+				<div className="bg-highlight p-4 rounded">
+					<h2 className="text-lg text-green-500 mb-2 text-balance">
 						Key features
 					</h2>
 					<ul className="list-disc list-inside space-y-1 text-pretty">
@@ -54,8 +54,8 @@ export function SprintProject() {
 					</ul>
 				</div>
 
-				<div className="bg-ayu-highlight p-4 rounded">
-					<h2 className="text-lg text-ayu-green-500 mb-2 text-balance">
+				<div className="bg-highlight p-4 rounded">
+					<h2 className="text-lg text-green-500 mb-2 text-balance">
 						Technologies
 					</h2>
 					<ul className="list-disc list-inside space-y-1 text-pretty">
@@ -70,9 +70,7 @@ export function SprintProject() {
 			</div>
 
 			<div className="mt-4">
-				<h2 className="text-2xl text-ayu-accent mb-3 text-balance">
-					Architecture
-				</h2>
+				<h2 className="text-2xl text-accent mb-3 text-balance">Architecture</h2>
 				<p className="mb-4 text-pretty">
 					Sprint uses a monorepo structure with three packages: a shared package
 					containing database schemas and types, a Bun.serve API with Drizzle
@@ -82,9 +80,7 @@ export function SprintProject() {
 			</div>
 
 			<div className="mt-4">
-				<h2 className="text-2xl text-ayu-accent mb-3 text-balance">
-					Screenshots
-				</h2>
+				<h2 className="text-2xl text-accent mb-3 text-balance">Screenshots</h2>
 				<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-4">
 					<Demo
 						image="/images/sprint/landing-1.png"
