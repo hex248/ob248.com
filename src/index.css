@@ -1,5 +1,6 @@
-@import url("https://fonts.ob248.com/avara");
 @import url("https://fonts.ob248.com/commitmono");
+@import url("https://fonts.ob248.com/ft88");
+@import url("https://fonts.ob248.com/picnic");
 
 @import "tailwindcss";
 
@@ -8,40 +9,38 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-	--bg: "#000000";
-	--fg: "#ffffff";
 	--radius: 0.625rem;
-	--background: oklch(1 0 0);
-	--foreground: oklch(0.145 0 0);
-	--card: oklch(1 0 0);
-	--card-foreground: oklch(0.145 0 0);
-	--popover: oklch(1 0 0);
-	--popover-foreground: oklch(0.145 0 0);
-	--primary: oklch(0.205 0 0);
-	--primary-foreground: oklch(0.985 0 0);
-	--secondary: oklch(0.97 0 0);
-	--secondary-foreground: oklch(0.205 0 0);
-	--muted: oklch(0.97 0 0);
-	--muted-foreground: oklch(0.556 0 0);
-	--accent: oklch(0.97 0 0);
-	--accent-foreground: oklch(0.205 0 0);
-	--destructive: oklch(0.577 0.245 27.325);
-	--border: oklch(0.922 0 0);
-	--input: oklch(0.922 0 0);
-	--ring: oklch(0.708 0 0);
-	--chart-1: oklch(0.646 0.222 41.116);
-	--chart-2: oklch(0.6 0.118 184.704);
-	--chart-3: oklch(0.398 0.07 227.392);
-	--chart-4: oklch(0.828 0.189 84.429);
-	--chart-5: oklch(0.769 0.188 70.08);
-	--sidebar: oklch(0.985 0 0);
-	--sidebar-foreground: oklch(0.145 0 0);
-	--sidebar-primary: oklch(0.205 0 0);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.97 0 0);
-	--sidebar-accent-foreground: oklch(0.205 0 0);
-	--sidebar-border: oklch(0.922 0 0);
-	--sidebar-ring: oklch(0.708 0 0);
+	--background: #ded6c4;
+	--foreground: #2e2b23;
+	--card: #efe6d4;
+	--card-foreground: #2e2b23;
+	--popover: #f5ecdb;
+	--popover-foreground: #2e2b23;
+	--primary: #5f4a33;
+	--primary-foreground: #f6efe3;
+	--secondary: #e5dccb;
+	--secondary-foreground: #3a3329;
+	--muted: #e0d7c7;
+	--muted-foreground: #6e6457;
+	--accent: #df7126;
+	--accent-foreground: #5f361b;
+	--destructive: #b8482b;
+	--border: #cbbfae;
+	--input: #d8cfbd;
+	--ring: #8f7b60;
+	--chart-1: #c6662a;
+	--chart-2: #7a6a4b;
+	--chart-3: #8f4c2a;
+	--chart-4: #a4813a;
+	--chart-5: #4f3f2b;
+	--sidebar: #e8dfcf;
+	--sidebar-foreground: #2e2b23;
+	--sidebar-primary: #5f4a33;
+	--sidebar-primary-foreground: #f6efe3;
+	--sidebar-accent: #e1c9a8;
+	--sidebar-accent-foreground: #3a3329;
+	--sidebar-border: #cbbfae;
+	--sidebar-ring: #8f7b60;
 }
 
 @theme inline {
@@ -86,37 +85,37 @@
 }
 
 .dark {
-	--background: oklch(0.145 0 0);
-	--foreground: oklch(0.985 0 0);
-	--card: oklch(0.205 0 0);
-	--card-foreground: oklch(0.985 0 0);
-	--popover: oklch(0.205 0 0);
-	--popover-foreground: oklch(0.985 0 0);
-	--primary: oklch(0.922 0 0);
-	--primary-foreground: oklch(0.205 0 0);
-	--secondary: oklch(0.269 0 0);
-	--secondary-foreground: oklch(0.985 0 0);
-	--muted: oklch(0.269 0 0);
-	--muted-foreground: oklch(0.708 0 0);
-	--accent: oklch(0.269 0 0);
-	--accent-foreground: oklch(0.985 0 0);
-	--destructive: oklch(0.704 0.191 22.216);
-	--border: oklch(1 0 0 / 10%);
-	--input: oklch(1 0 0 / 15%);
-	--ring: oklch(0.556 0 0);
-	--chart-1: oklch(0.488 0.243 264.376);
-	--chart-2: oklch(0.696 0.17 162.48);
-	--chart-3: oklch(0.769 0.188 70.08);
-	--chart-4: oklch(0.627 0.265 303.9);
-	--chart-5: oklch(0.645 0.246 16.439);
-	--sidebar: oklch(0.205 0 0);
-	--sidebar-foreground: oklch(0.985 0 0);
-	--sidebar-primary: oklch(0.488 0.243 264.376);
-	--sidebar-primary-foreground: oklch(0.985 0 0);
-	--sidebar-accent: oklch(0.269 0 0);
-	--sidebar-accent-foreground: oklch(0.985 0 0);
-	--sidebar-border: oklch(1 0 0 / 10%);
-	--sidebar-ring: oklch(0.556 0 0);
+	--background: #1b1813;
+	--foreground: #f6efe3;
+	--card: #242019;
+	--card-foreground: #f6efe3;
+	--popover: #221e17;
+	--popover-foreground: #f6efe3;
+	--primary: #e1c9a8;
+	--primary-foreground: #2a241b;
+	--secondary: #2f2a21;
+	--secondary-foreground: #f1e9dc;
+	--muted: #2b261e;
+	--muted-foreground: #b8ad9d;
+	--accent: #df7126;
+	--accent-foreground: #2a241b;
+	--destructive: #cc5a3a;
+	--border: #3b3328;
+	--input: #3f372c;
+	--ring: #9d8568;
+	--chart-1: #df7126;
+	--chart-2: #c39a55;
+	--chart-3: #a5633a;
+	--chart-4: #8a6a3a;
+	--chart-5: #f0c27b;
+	--sidebar: #211d17;
+	--sidebar-foreground: #f6efe3;
+	--sidebar-primary: #e1c9a8;
+	--sidebar-primary-foreground: #2a241b;
+	--sidebar-accent: #2f291f;
+	--sidebar-accent-foreground: #f1e9dc;
+	--sidebar-border: #3b3328;
+	--sidebar-ring: #9d8568;
 }
 
 @layer base {
@@ -131,16 +130,26 @@
 body {
 	font-family: "Commit Mono", monospace;
 	font-weight: 400;
-	background-color: var(--bg);
-	color: var(--fg);
+	background-color: var(--background);
+	color: var(--foreground);
 }
 
-.font-avara {
-	font-family: "Avara", serif;
+.commitmono {
+	font-family: "Commit Mono", monospace;
+	font-weight: 400;
+}
+
+.ft88 {
+	font-family: "FT88", serif;
+	font-weight: 80;
+}
+
+.ft88-bold {
+	font-family: "FT88", serif;
 	font-weight: 200;
 }
 
-.font-avara-bold {
-	font-family: "Avara", serif;
-	font-weight: 205;
+.picnic {
+	font-family: "PicNic", serif;
+	font-weight: 400;
 }
