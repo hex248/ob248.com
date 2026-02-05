@@ -1,5 +1,5 @@
-import { Demo } from "@/projects/shared/Demo";
-import { ProjectPage } from "@/projects/shared/ProjectPage";
+import { Demo } from "@/components/Demo";
+import { ProjectPage } from "@/components/ProjectPage";
 
 export const metadata = {
 	title: "Sprint",
@@ -84,17 +84,17 @@ export function SprintProject() {
 				<div className="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-1 gap-4">
 					<Demo
 						image="/images/sprint/landing-1.png"
-						title="Landing — 1"
+						title="Landing - 1"
 						type="boxed"
 					/>
 					<Demo
 						image="/images/sprint/landing-light-1.png"
-						title="Landing (light) — 1"
+						title="Landing (light) - 1"
 						type="boxed"
 					/>
 					<Demo
 						image="/images/sprint/selected-issue.png"
-						title="Main interface — issues list and detail pane"
+						title="Main interface - issues list and detail pane"
 						type="boxed"
 					/>
 					<Demo

@@ -1,5 +1,5 @@
-import { Demo } from "@/projects/shared/Demo";
-import { ProjectPage } from "@/projects/shared/ProjectPage";
+import { Demo } from "@/components/Demo";
+import { ProjectPage } from "@/components/ProjectPage";
 
 export const metadata = {
 	title: "factor-e",

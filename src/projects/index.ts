@@ -1,6 +1,7 @@
 import type { ComponentType } from "react";
 import { FactorEProject, metadata as factorEMetadata } from "./factor-e";
 import { FlackieProject, metadata as flackieMetadata } from "./flackie";
+import { FontsProject, metadata as fontsMetadata } from "./fonts";
 import { GlimpseProject, metadata as glimpseMetadata } from "./glimpse";
 import {
 	GoodMorningProject,
@@ -38,6 +39,10 @@ export const projects = {
 	[factorEMetadata.slug]: {
 		metadata: factorEMetadata,
 		Component: FactorEProject,
+	},
+	[fontsMetadata.slug]: {
+		metadata: fontsMetadata,
+		Component: FontsProject,
 	},
 	[flackieMetadata.slug]: {
 		metadata: flackieMetadata,
