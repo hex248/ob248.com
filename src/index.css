@@ -87,7 +87,7 @@
 }
 
 .dark {
-	--background: #1b1813;
+	--background: #141311;
 	--foreground: #f6efe3;
 	--card: #242019;
 	--card-foreground: #f6efe3;
@@ -97,7 +97,7 @@
 	--primary-foreground: #2a241b;
 	--secondary: #2f2a21;
 	--secondary-foreground: #f1e9dc;
-	--muted: #2b261e;
+	--muted: #1a1713;
 	--muted-foreground: #b8ad9d;
 	--accent: #df7126;
 	--accent-foreground: #2a241b;

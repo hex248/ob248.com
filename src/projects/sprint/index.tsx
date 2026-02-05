@@ -46,7 +46,7 @@ export function SprintProject() {
 						<li>Issue assignment to team members</li>
 						<li>Time tracking with start, pause, and resume timers</li>
 						<li>Sprint management with date ranges</li>
-						<li>Customizable issue statuses per organisation</li>
+						<li>Customisable issue statuses per organisation</li>
 						<li>Resizable split-pane interface</li>
 						<li>Role-based access: owner, admin, member</li>
 						<li>Avatar uploads with S3 storage</li>
