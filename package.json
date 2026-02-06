@@ -12,6 +12,7 @@
 	"dependencies": {
 		"@iconify/react": "^6.0.2",
 		"@nsmr/pixelart-react": "^2.0.0",
+		"@paper-design/shaders-react": "0.0.71",
 		"@tailwindcss/vite": "^4.1.18",
 		"class-variance-authority": "^0.7.1",
 		"clsx": "^2.1.1",
