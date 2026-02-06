@@ -10,6 +10,7 @@ import { Link, Route, Routes, useParams } from "react-router-dom";
 import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { TimeSince } from "@/components/time-since";
+import { WakaTimeStats } from "@/components/wakatime-stats";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { ThemeToggle } from "./components/theme-toggle";
 
@@ -102,7 +103,7 @@ function Home() {
 					Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
 				</div>
 			</div>
-			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
+			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-2">
 				{sortedProjects.map((project) => (
 					<ProjectListItem
 						key={project.metadata.slug}
@@ -111,6 +112,7 @@ function Home() {
 					/>
 				))}
 			</div>
+			<WakaTimeStats />
 			<div className="w-full max-w-5xl flex items-center justify-between gap-4">
 				<div className="flex items-center gap-6">
 					<AskAI name="me" inline />
