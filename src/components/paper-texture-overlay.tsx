@@ -3,22 +3,22 @@ import { useTheme } from "@/components/theme-provider";
 
 const lightTexture = {
 	colorFront: "#5f4a331a",
-	contrast: 0.22,
+	contrast: 0.3,
 	roughness: 0.24,
-	fiber: 0.2,
-	crumples: 0.2,
-	folds: 0.12,
-	drops: 0.08,
+	fiber: 0.1,
+	crumples: 0,
+	folds: 0,
+	drops: 0,
 };
 
 const darkTexture = {
 	colorFront: "#f6efe31a",
-	contrast: 0.18,
-	roughness: 0.2,
-	fiber: 0.18,
-	crumples: 0.16,
-	folds: 0.1,
-	drops: 0.06,
+	contrast: 0.3,
+	roughness: 0.24,
+	fiber: 0.1,
+	crumples: 0,
+	folds: 0,
+	drops: 0,
 };
 
 export function PaperTextureOverlay() {
@@ -47,7 +47,7 @@ export function PaperTextureOverlay() {
 			foldCount={5}
 			drops={texture.drops}
 			fade={0.08}
-			seed={5.8}
+			seed={5}
 			minPixelRatio={1}
 			maxPixelCount={2304000}
 		/>
