@@ -66,7 +66,7 @@ function TabsTrigger({
 			data-slot="tabs-trigger"
 			className={cn(
 				"focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:outline-ring",
-				"text-foreground/60 dark:text-muted-foreground data-[state=active]:text-accent",
+				"text-foreground/60 dark:text-muted-foreground data-[state=active]:text-accent dark:data-[state=active]:text-accent",
 				"relative inline-flex h-[calc(100%-1px)]",
 				"flex-1 items-center justify-center border border-transparent",
 				"px-2 py-1 text-sm font-medium whitespace-nowrap group-data-[orientation=vertical]/tabs:w-full",
@@ -75,7 +75,7 @@ function TabsTrigger({
 				"[&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
 				"bg-input/30 data-[state=active]:bg-background dark:bg-transparent dark:data-[state=active]:bg-input/30",
 				"dark:data-[state=active]:border-input",
-				"data-[state=active]:text-accent after:bg-foreground after:absolute after:opacity-0",
+				"after:bg-foreground after:absolute after:opacity-0",
 				"group-data-[orientation=horizontal]/tabs:after:inset-x-0 group-data-[orientation=horizontal]/tabs:after:bottom-[-5px]",
 				"group-data-[orientation=horizontal]/tabs:after:h-0.5 group-data-[orientation=vertical]/tabs:after:inset-y-0",
 				"group-data-[orientation=vertical]/tabs:after:-right-1 group-data-[orientation=vertical]/tabs:after:w-0.5 cursor-pointer",
