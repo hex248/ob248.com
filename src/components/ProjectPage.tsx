@@ -1,6 +1,6 @@
 import { Home } from "@nsmr/pixelart-react";
-import type { ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { type ReactNode, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { getProjectPrompt } from "@/lib/constants";
 import type { ProjectMetadata } from "@/projects";
 import { AskAI } from "./ask-ai";
@@ -12,10 +12,36 @@ export function ProjectPage({
 	metadata: ProjectMetadata;
 	children: ReactNode;
 }) {
+	const navigate = useNavigate();
 	const tags = metadata.tags ? [...metadata.tags].sort() : [];
 
+	useEffect(() => {
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.defaultPrevented || event.isComposing) return;
+			if (event.metaKey || event.ctrlKey || event.altKey) return;
+			if (isInteractiveTarget(event.target)) return;
+
+			if (
+				event.key === "Escape" ||
+				event.key === "Backspace" ||
+				event.key === "q"
+			) {
+				event.preventDefault();
+				navigate("/");
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [navigate]);
+
 	return (
-		<div className="mx-auto w-full max-w-4xl px-6 py-4 text-md border my-8">
+		<div className="relative mx-auto w-full max-w-4xl px-6 py-4 text-md border my-8">
+			<p className="absolute top-4 right-6 text-xs text-fg/75">
+				esc or backspace to go back
+			</p>
 			<Link
 				to="/"
 				className="inline-flex items-center text-sm hover:text-accent mb-4"
@@ -37,14 +63,16 @@ export function ProjectPage({
 						<div className="w-24 h-24 mb-2 border rounded" />
 					)}
 				</div>
-				<AskAI
-					name={metadata.title}
-					prompt={getProjectPrompt(
-						metadata.title,
-						metadata.description,
-						metadata.slug,
-					)}
-				/>
+				<div className="ml-auto flex flex-col items-end text-right">
+					<AskAI
+						name={metadata.title}
+						prompt={getProjectPrompt(
+							metadata.title,
+							metadata.description,
+							metadata.slug,
+						)}
+					/>
+				</div>
 			</div>
 			{metadata.url ? (
 				<div className="flex flex-col mb-2">
@@ -110,5 +138,18 @@ export function ProjectPage({
 				) : null}
 			</p>
 		</div>
+	);
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) return false;
+	if (target.isContentEditable) return true;
+	const tagName = target.tagName;
+	return (
+		tagName === "INPUT" ||
+		tagName === "TEXTAREA" ||
+		tagName === "SELECT" ||
+		tagName === "BUTTON" ||
+		tagName === "A"
 	);
 }

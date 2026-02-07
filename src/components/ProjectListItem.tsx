@@ -5,9 +5,13 @@ import type { ProjectMetadata } from "@/projects";
 export function ProjectListItem({
 	metadata,
 	isDevMode = false,
+	isActive = false,
+	enableHover = true,
 }: {
 	metadata: ProjectMetadata;
 	isDevMode?: boolean;
+	isActive?: boolean;
+	enableHover?: boolean;
 }) {
 	const tags = metadata.tags ? [...metadata.tags].sort() : [];
 	if (metadata.hidden && !isDevMode) return null;
@@ -16,7 +20,9 @@ export function ProjectListItem({
 		<Link
 			to={`/projects/${metadata.slug}`}
 			className={cn(
-				"group relative block flex flex-col justify-between transition-colors duration-200 border-2 hover:border-accent",
+				"group relative block flex flex-col justify-between transition-colors duration-200 border-2",
+				enableHover && "hover:border-accent",
+				isActive && "border-accent",
 				isDevMode && metadata.hidden && "border-dashed border-accent",
 			)}
 			data-tags={tags.join(",")}

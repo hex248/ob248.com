@@ -6,7 +6,7 @@ import {
 	Notes,
 } from "@nsmr/pixelart-react";
 import { useEffect, useState } from "react";
-import { Link, Route, Routes, useParams } from "react-router-dom";
+import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { TimeSince } from "@/components/time-since";
@@ -39,7 +39,10 @@ export default App;
 
 function Home() {
 	const isDevMode = import.meta.env.VITE_PUBLIC_DEV === "1";
+	const navigate = useNavigate();
 	const [asciiArt, setAsciiArt] = useState("");
+	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const [hasPointerInteraction, setHasPointerInteraction] = useState(false);
 	const [asciiFile] = useState(
 		() => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
 	);
@@ -47,6 +50,9 @@ function Home() {
 		(a, b) =>
 			parseDate(b.metadata.date).getTime() -
 			parseDate(a.metadata.date).getTime(),
+	);
+	const visibleProjects = sortedProjects.filter(
+		(project) => isDevMode || !project.metadata.hidden,
 	);
 
 	useEffect(() => {
@@ -60,6 +66,78 @@ function Home() {
 			isActive = false;
 		};
 	}, [asciiFile]);
+
+	useEffect(() => {
+		setActiveIndex((prev) => {
+			if (visibleProjects.length === 0) return null;
+			if (prev === null) return null;
+			return Math.min(prev, visibleProjects.length - 1);
+		});
+	}, [visibleProjects.length]);
+
+	useEffect(() => {
+		if (visibleProjects.length === 0) return;
+
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.defaultPrevented || event.isComposing) return;
+			if (event.metaKey || event.ctrlKey || event.altKey) return;
+			if (isInteractiveTarget(event.target)) return;
+
+			const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+			const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+			const columns = isDesktop ? 2 : 1;
+
+			let delta = 0;
+			if (key === "ArrowLeft" || key === "h") delta = -1;
+			if (key === "ArrowRight" || key === "l") delta = 1;
+			if (key === "ArrowUp" || key === "k") delta = -columns;
+			if (key === "ArrowDown" || key === "j") delta = columns;
+
+			if (delta !== 0) {
+				event.preventDefault();
+				setActiveIndex((prev) => {
+					if (prev === null) return 0;
+					const next = Math.max(
+						0,
+						Math.min(visibleProjects.length - 1, prev + delta),
+					);
+					return next;
+				});
+				return;
+			}
+
+			if (key === "Enter") {
+				if (activeIndex === null) return;
+				event.preventDefault();
+				const target = visibleProjects[activeIndex];
+				if (!target) return;
+				navigate(`/projects/${target.metadata.slug}`);
+			}
+		};
+
+		window.addEventListener("keydown", handleKeyDown);
+		return () => {
+			window.removeEventListener("keydown", handleKeyDown);
+		};
+	}, [activeIndex, navigate, visibleProjects]);
+
+	useEffect(() => {
+		const enablePointerInteraction = () => {
+			setHasPointerInteraction(true);
+		};
+
+		window.addEventListener("pointermove", enablePointerInteraction, {
+			once: true,
+		});
+		window.addEventListener("pointerdown", enablePointerInteraction, {
+			once: true,
+		});
+
+		return () => {
+			window.removeEventListener("pointermove", enablePointerInteraction);
+			window.removeEventListener("pointerdown", enablePointerInteraction);
+		};
+	}, []);
 
 	return (
 		<div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
@@ -103,21 +181,41 @@ function Home() {
 				</div>
 			</div>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
-				{sortedProjects.map((project) => (
+				{visibleProjects.map((project, index) => (
 					<ProjectListItem
 						key={project.metadata.slug}
 						metadata={project.metadata}
 						isDevMode={isDevMode}
+						isActive={activeIndex !== null && index === activeIndex}
+						enableHover={hasPointerInteraction}
 					/>
 				))}
 			</div>
-			<div className="w-full max-w-5xl flex items-center justify-between gap-4">
+			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
 				<div className="flex items-center gap-6">
 					<AskAI name="me" inline />
 				</div>
-				<ThemeToggle />
+				<p className="text-xs text-fg/80 text-center text-pretty">
+					arrows or hjkl, then enter
+				</p>
+				<div className="justify-self-center md:justify-self-end">
+					<ThemeToggle />
+				</div>
 			</div>
 		</div>
+	);
+}
+
+function isInteractiveTarget(target: EventTarget | null): boolean {
+	if (!(target instanceof HTMLElement)) return false;
+	if (target.isContentEditable) return true;
+	const tagName = target.tagName;
+	return (
+		tagName === "INPUT" ||
+		tagName === "TEXTAREA" ||
+		tagName === "SELECT" ||
+		tagName === "BUTTON" ||
+		tagName === "A"
 	);
 }
 
