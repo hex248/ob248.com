@@ -43,6 +43,7 @@ export default App;
 
 function Home() {
 	const isDevMode = import.meta.env.VITE_PUBLIC_DEV === "1";
+	const isTabsEnabled = import.meta.env.VITE_TABS === "1";
 	const navigate = useNavigate();
 	const [asciiArt, setAsciiArt] = useState("");
 	const [activeTab, setActiveTab] = useState<HomeTab>("work");
@@ -87,7 +88,7 @@ function Home() {
 			if (event.defaultPrevented || event.isComposing) return;
 			if (event.metaKey || event.ctrlKey || event.altKey) return;
 
-			if (event.key === "Tab") {
+			if (isTabsEnabled && event.key === "Tab") {
 				event.preventDefault();
 				setActiveTab((prev) => {
 					const currentIndex = homeTabs.indexOf(prev);
@@ -197,42 +198,56 @@ function Home() {
 					Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
 				</div>
 			</div>
-			<Tabs
-				value={activeTab}
-				onValueChange={(value) => setActiveTab(value as HomeTab)}
-				className="w-full max-w-5xl gap-0"
-			>
-				<TabsList variant="line" className="h-auto w-full gap-0 p-0">
-					<TabsTrigger
-						value={homeTabs[0]}
-						className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
-					>
-						Work
-					</TabsTrigger>
-					<TabsTrigger
-						value={homeTabs[1]}
-						className="border-border after:hidden data-[state=active]:text-accent"
-					>
-						Travel
-					</TabsTrigger>
-				</TabsList>
-				<div className="-mt-[1.5px] p-2 border">
-					<TabsContent value={homeTabs[0]}>
-						<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-							{visibleProjects.map((project, index) => (
-								<ProjectListItem
-									key={project.metadata.slug}
-									metadata={project.metadata}
-									isDevMode={isDevMode}
-									isActive={activeIndex !== null && index === activeIndex}
-									enableHover={hasPointerInteraction}
-								/>
-							))}
-						</div>
-					</TabsContent>
-					<TabsContent value={homeTabs[1]}>test </TabsContent>
+			{isTabsEnabled ? (
+				<Tabs
+					value={activeTab}
+					onValueChange={(value) => setActiveTab(value as HomeTab)}
+					className="w-full max-w-5xl gap-0"
+				>
+					<TabsList variant="line" className="h-auto w-full gap-0 p-0">
+						<TabsTrigger
+							value={homeTabs[0]}
+							className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
+						>
+							Work
+						</TabsTrigger>
+						<TabsTrigger
+							value={homeTabs[1]}
+							className="border-border after:hidden data-[state=active]:text-accent"
+						>
+							Travel
+						</TabsTrigger>
+					</TabsList>
+					<div className="-mt-[1.5px] border p-2">
+						<TabsContent value={homeTabs[0]}>
+							<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+								{visibleProjects.map((project, index) => (
+									<ProjectListItem
+										key={project.metadata.slug}
+										metadata={project.metadata}
+										isDevMode={isDevMode}
+										isActive={activeIndex !== null && index === activeIndex}
+										enableHover={hasPointerInteraction}
+									/>
+								))}
+							</div>
+						</TabsContent>
+						<TabsContent value={homeTabs[1]} />
+					</div>
+				</Tabs>
+			) : (
+				<div className="w-full max-w-5xl grid grid-cols-1 gap-2 md:grid-cols-2">
+					{visibleProjects.map((project, index) => (
+						<ProjectListItem
+							key={project.metadata.slug}
+							metadata={project.metadata}
+							isDevMode={isDevMode}
+							isActive={activeIndex !== null && index === activeIndex}
+							enableHover={hasPointerInteraction}
+						/>
+					))}
 				</div>
-			</Tabs>
+			)}
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
 				<div className="flex items-center gap-6">
 					<AskAI name="me" inline />
