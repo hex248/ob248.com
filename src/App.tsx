@@ -10,6 +10,7 @@ import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { TimeSince } from "@/components/time-since";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { ThemeToggle } from "./components/theme-toggle";
 
@@ -180,17 +181,39 @@ function Home() {
 					Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
 				</div>
 			</div>
-			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-2 gap-4">
-				{visibleProjects.map((project, index) => (
-					<ProjectListItem
-						key={project.metadata.slug}
-						metadata={project.metadata}
-						isDevMode={isDevMode}
-						isActive={activeIndex !== null && index === activeIndex}
-						enableHover={hasPointerInteraction}
-					/>
-				))}
-			</div>
+			<Tabs defaultValue="work" className="w-full max-w-5xl gap-0">
+				<TabsContent value="work" className="-mb-[1.5px] p-2 border">
+					<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
+						{visibleProjects.map((project, index) => (
+							<ProjectListItem
+								key={project.metadata.slug}
+								metadata={project.metadata}
+								isDevMode={isDevMode}
+								isActive={activeIndex !== null && index === activeIndex}
+								enableHover={hasPointerInteraction}
+							/>
+						))}
+					</div>
+				</TabsContent>
+				<TabsContent value="travel" className="-mb-[1.5px] p-2 border">
+					test{" "}
+				</TabsContent>
+				<TabsList variant="line" className="h-auto w-full gap-0 p-0">
+					<TabsTrigger
+						value="work"
+						className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
+					>
+						Work
+					</TabsTrigger>
+					<TabsTrigger
+						value="travel"
+						className="border-border after:hidden data-[state=active]:text-accent"
+					>
+						Travel
+					</TabsTrigger>
+				</TabsList>
+				<TabsContent value="travel" className="pt-2" />
+			</Tabs>
 			<div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
 				<div className="flex items-center gap-6">
 					<AskAI name="me" inline />
