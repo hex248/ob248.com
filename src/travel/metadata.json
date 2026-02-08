@@ -2,22 +2,64 @@
   {
     "id": 1,
     "continent": "Europe",
-    "country": "Italy",
-    "city": "Bologna",
-    "date": "June"
+    "country": "The Netherlands",
+    "city": "Utrecht",
+    "date": "November 2024"
   },
   {
     "id": 2,
     "continent": "Europe",
-    "country": "Hungary",
-    "city": "Budapest",
-    "date": "September"
+    "country": "Norway",
+    "city": "Bodø",
+    "date": "January 2025"
   },
   {
     "id": 3,
     "continent": "Europe",
+    "country": "Albania",
+    "city": "Tirana",
+    "date": "May 2025"
+  },
+  {
+    "id": 4,
+    "continent": "Europe",
+    "country": "Italy",
+    "city": "Bologna",
+    "date": "June 2025"
+  },
+  {
+    "id": 5,
+    "continent": "Europe",
+    "country": "Wales",
+    "city": "Camarthen",
+    "date": "August 2025"
+  },
+  {
+    "id": 6,
+    "continent": "Europe",
+    "country": "Hungary",
+    "city": "Budapest",
+    "date": "September 2025"
+  },
+  {
+    "id": 7,
+    "continent": "Europe",
+    "country": "Greece",
+    "city": "Athens",
+    "date": "September 2025"
+  },
+  {
+    "id": 8,
+    "continent": "Europe",
     "country": "Spain",
     "city": "Barcelona",
-    "date": "October"
+    "date": "October 2025"
+  },
+  {
+    "id": 9,
+    "continent": "North America",
+    "country": "Canada",
+    "city": "Toronto",
+    "date": "December 2025"
   }
 ]
