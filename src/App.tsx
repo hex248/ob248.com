@@ -7,7 +7,7 @@ import {
   Mail,
   Notes,
 } from "@nsmr/pixelart-react";
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
 import { AskAI } from "@/components/ask-ai";
 import { ProjectListItem } from "@/components/ProjectListItem";
@@ -466,7 +466,7 @@ function Home() {
         <TabsContent value={homeTabs[1]} className="relative z-10">
           <div className="-mt-[1px] grid grid-cols-1">
             {locations.map((location, index) => (
-              <div key={location.id}>
+              <Fragment key={location.id}>
                 <Button
                   className={cn(
                     "text-sm border cursor-pointer hover:border-accent justify-start w-full",
@@ -599,7 +599,7 @@ function Home() {
                       </div>
                     </div>
                   ))}
-              </div>
+              </Fragment>
             ))}
           </div>
         </TabsContent>
