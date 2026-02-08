@@ -15,7 +15,6 @@ import { TimeSince } from "@/components/time-since";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { locationPhotos, locations } from "@/travel";
-import { TravelListItem } from "./components/TravelListItem";
 import { ThemeToggle } from "./components/theme-toggle";
 import { Button } from "./components/ui/button";
 import { cn } from "./lib/utils";
@@ -246,16 +245,21 @@ function Home() {
             <div className="-mt-[1px] grid grid-cols-1">
               {locations.map((location, index) => (
                 <>
-                  <TravelListItem
-                    key={`${location.city} ${location.date}`}
-                    metadata={location}
+                  <Button
+                    className={cn(
+                      "text-sm border cursor-pointer hover:border-accent justify-start",
+                    )}
                     onClick={(_e) => {
                       setActivePhoto(null);
                       setActiveLocation((prev) =>
                         prev === index ? null : index,
                       );
                     }}
-                  />
+                    variant="dummy"
+                    size="sm"
+                  >
+                    {location.city}, {location.country} - {location.date}
+                  </Button>
                   {activeLocation === index &&
                     (locationPhotos[location.id].length === 0 ? (
                       <div className="flex">
