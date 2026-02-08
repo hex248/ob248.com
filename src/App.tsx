@@ -48,7 +48,6 @@ export default App;
 
 function Home() {
   const isDevMode = import.meta.env.VITE_PUBLIC_DEV === "1";
-  const isTabsEnabled = import.meta.env.VITE_TABS === "1";
   const navigate = useNavigate();
   const [asciiArt, setAsciiArt] = useState("");
   const [activeHomeTab, setActiveHomeTab] = useState<HomeTab>("work");
@@ -123,7 +122,7 @@ function Home() {
       if (event.defaultPrevented || event.isComposing) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
-      if (isTabsEnabled && event.key === "Tab") {
+      if (event.key === "Tab") {
         event.preventDefault();
         setActiveHomeTab((prev) => {
           const currentIndex = homeTabs.indexOf(prev);
@@ -428,201 +427,183 @@ function Home() {
           Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
         </div>
       </div>
-      {isTabsEnabled ? (
-        <Tabs
-          value={activeHomeTab}
-          onValueChange={(value) => setActiveHomeTab(value as HomeTab)}
-          className="w-full max-w-5xl gap-0"
+      <Tabs
+        value={activeHomeTab}
+        onValueChange={(value) => setActiveHomeTab(value as HomeTab)}
+        className="w-full max-w-5xl gap-0"
+      >
+        <TabsList
+          variant="line"
+          className="relative z-0 h-auto w-full gap-0 p-0"
         >
-          <TabsList
-            variant="line"
-            className="relative z-0 h-auto w-full gap-0 p-0"
+          <TabsTrigger
+            value={homeTabs[0]}
+            className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
           >
-            <TabsTrigger
-              value={homeTabs[0]}
-              className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
-            >
-              Work
-            </TabsTrigger>
-            <TabsTrigger
-              value={homeTabs[1]}
-              className="border-border after:hidden data-[state=active]:text-accent"
-            >
-              Travel
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value={homeTabs[0]} className="relative z-10">
-            <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2 md:grid-cols-2">
-              {visibleProjects.map((project, index) => (
-                <ProjectListItem
-                  key={project.metadata.slug}
-                  metadata={project.metadata}
-                  isDevMode={isDevMode}
-                  isActive={
-                    activeProjectIndex !== null && index === activeProjectIndex
-                  }
-                />
-              ))}
-            </div>
-          </TabsContent>
-          <TabsContent value={homeTabs[1]} className="relative z-10">
-            <div className="-mt-[1px] grid grid-cols-1">
-              {locations.map((location, index) => (
-                <div key={location.id}>
-                  <Button
-                    className={cn(
-                      "text-sm border cursor-pointer hover:border-accent justify-start",
-                      activeLocationIndex === index &&
-                        activeHomeTab === "travel" &&
-                        travelFocusLevel === "location" &&
-                        "border-accent",
-                    )}
-                    onClick={(_e) => {
-                      const isExpanded = expandedLocationIndex === index;
-                      const photos = locationPhotos[location.id] ?? [];
+            Work
+          </TabsTrigger>
+          <TabsTrigger
+            value={homeTabs[1]}
+            className="border-border after:hidden data-[state=active]:text-accent"
+          >
+            Travel
+          </TabsTrigger>
+        </TabsList>
+        <TabsContent value={homeTabs[0]} className="relative z-10">
+          <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2 md:grid-cols-2">
+            {visibleProjects.map((project, index) => (
+              <ProjectListItem
+                key={project.metadata.slug}
+                metadata={project.metadata}
+                isDevMode={isDevMode}
+                isActive={
+                  activeProjectIndex !== null && index === activeProjectIndex
+                }
+              />
+            ))}
+          </div>
+        </TabsContent>
+        <TabsContent value={homeTabs[1]} className="relative z-10">
+          <div className="-mt-[1px] grid grid-cols-1">
+            {locations.map((location, index) => (
+              <div key={location.id}>
+                <Button
+                  className={cn(
+                    "text-sm border cursor-pointer hover:border-accent justify-start w-full",
+                    activeLocationIndex === index &&
+                      activeHomeTab === "travel" &&
+                      travelFocusLevel === "location" &&
+                      "border-accent",
+                  )}
+                  onClick={(_e) => {
+                    const isExpanded = expandedLocationIndex === index;
+                    const photos = locationPhotos[location.id] ?? [];
 
-                      setActiveLocationIndex(index);
+                    setActiveLocationIndex(index);
 
-                      if (isExpanded) {
-                        setExpandedLocationIndex(null);
-                        setTravelFocusLevel("location");
-                        setPreviewPhotoPath(null);
-                        return;
-                      }
+                    if (isExpanded) {
+                      setExpandedLocationIndex(null);
+                      setTravelFocusLevel("location");
+                      setPreviewPhotoPath(null);
+                      return;
+                    }
 
-                      setExpandedLocationIndex(index);
+                    setExpandedLocationIndex(index);
 
-                      if (photos.length === 0) {
-                        setTravelFocusLevel("location");
-                        setPreviewPhotoPath(null);
-                        return;
-                      }
+                    if (photos.length === 0) {
+                      setTravelFocusLevel("location");
+                      setPreviewPhotoPath(null);
+                      return;
+                    }
 
-                      const nextPhotoIndex = clampIndex(
-                        activePhotoIndexByLocation[location.id] ?? 0,
-                        photos.length,
-                      );
-                      const nextPhotoName = photos[nextPhotoIndex];
-                      if (!nextPhotoName) {
-                        setTravelFocusLevel("location");
-                        setPreviewPhotoPath(null);
-                        return;
-                      }
+                    const nextPhotoIndex = clampIndex(
+                      activePhotoIndexByLocation[location.id] ?? 0,
+                      photos.length,
+                    );
+                    const nextPhotoName = photos[nextPhotoIndex];
+                    if (!nextPhotoName) {
+                      setTravelFocusLevel("location");
+                      setPreviewPhotoPath(null);
+                      return;
+                    }
 
-                      setActivePhotoIndexByLocation((prev) => ({
-                        ...prev,
-                        [location.id]: nextPhotoIndex,
-                      }));
-                      setPreviewPhotoPath(
-                        getTravelPhotoPath(location, nextPhotoName),
-                      );
-                      setTravelFocusLevel("photo");
-                    }}
-                    variant="dummy"
-                    size="sm"
-                  >
-                    {location.city}, {location.country} - {location.date}
-                  </Button>
-                  {expandedLocationIndex === index &&
-                    (locationPhotos[location.id].length === 0 ? (
-                      <div className="flex">
-                        <div className="flex flex-col flex-1 ml-8">
-                          <Button
-                            disabled
-                            className={cn(
-                              "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
-                            )}
-                            variant="dummy"
-                            size="sm"
-                          >
-                            <ImageDelete size={16} /> No photos available
-                          </Button>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex">
-                        <div
-                          id={getTravelPhotoListId(location.id)}
-                          className="flex flex-col flex-1 ml-8 max-h-128 overflow-y-auto gap-1"
-                        >
-                          {locationPhotos[location.id].map(
-                            (photo, photoIndex) => (
-                              <Button
-                                key={photo}
-                                id={getTravelPhotoItemId(
-                                  location.id,
-                                  photoIndex,
-                                )}
-                                onClick={() => {
-                                  const path = getTravelPhotoPath(
-                                    location,
-                                    photo,
-                                  );
-                                  setActiveLocationIndex(index);
-                                  setExpandedLocationIndex(index);
-                                  setTravelFocusLevel("photo");
-                                  setActivePhotoIndexByLocation((prev) => ({
-                                    ...prev,
-                                    [location.id]: photoIndex,
-                                  }));
-                                  setPreviewPhotoPath(path);
-                                }}
-                                className={cn(
-                                  "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
-                                  activeHomeTab === "travel" &&
-                                    travelFocusLevel === "photo" &&
-                                    activePhotoIndexByLocation[location.id] ===
-                                      photoIndex &&
-                                    "border-accent",
-                                )}
-                                variant="dummy"
-                                size="sm"
-                              >
-                                <Image size={22} />
-                                {photo}
-                              </Button>
-                            ),
+                    setActivePhotoIndexByLocation((prev) => ({
+                      ...prev,
+                      [location.id]: nextPhotoIndex,
+                    }));
+                    setPreviewPhotoPath(
+                      getTravelPhotoPath(location, nextPhotoName),
+                    );
+                    setTravelFocusLevel("photo");
+                  }}
+                  variant="dummy"
+                  size="sm"
+                >
+                  {location.city}, {location.country} - {location.date}
+                </Button>
+                {expandedLocationIndex === index &&
+                  (locationPhotos[location.id].length === 0 ? (
+                    <div className="flex">
+                      <div className="flex flex-col flex-1 ml-8">
+                        <Button
+                          disabled
+                          className={cn(
+                            "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 w-full",
                           )}
-                        </div>
-                        <div
-                          className={
-                            "flex-1 max-w-sm border flex items-center h-128 justify-center text-sm gap-4"
-                          }
+                          variant="dummy"
+                          size="sm"
                         >
-                          {previewPhotoPath ? (
-                            <img
-                              className={"flex-1 max-w-sm"}
-                              src={previewPhotoPath}
-                              alt={"active-photo"}
-                            />
-                          ) : (
-                            <span>
-                              <ImageDelete />
-                              No photo selected
-                            </span>
-                          )}
-                        </div>
+                          <ImageDelete size={16} /> No photos available
+                        </Button>
                       </div>
-                    ))}
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-        </Tabs>
-      ) : (
-        <div className="w-full max-w-5xl grid grid-cols-1 gap-2 md:grid-cols-2">
-          {visibleProjects.map((project, index) => (
-            <ProjectListItem
-              key={project.metadata.slug}
-              metadata={project.metadata}
-              isDevMode={isDevMode}
-              isActive={
-                activeProjectIndex !== null && index === activeProjectIndex
-              }
-            />
-          ))}
-        </div>
-      )}
+                    </div>
+                  ) : (
+                    <div className="flex">
+                      <div
+                        id={getTravelPhotoListId(location.id)}
+                        className="flex flex-col flex-1 ml-8 max-h-128 overflow-y-auto gap-1"
+                      >
+                        {locationPhotos[location.id].map(
+                          (photo, photoIndex) => (
+                            <Button
+                              key={photo}
+                              id={getTravelPhotoItemId(location.id, photoIndex)}
+                              onClick={() => {
+                                const path = getTravelPhotoPath(
+                                  location,
+                                  photo,
+                                );
+                                setActiveLocationIndex(index);
+                                setExpandedLocationIndex(index);
+                                setTravelFocusLevel("photo");
+                                setActivePhotoIndexByLocation((prev) => ({
+                                  ...prev,
+                                  [location.id]: photoIndex,
+                                }));
+                                setPreviewPhotoPath(path);
+                              }}
+                              className={cn(
+                                "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
+                                activeHomeTab === "travel" &&
+                                  travelFocusLevel === "photo" &&
+                                  activePhotoIndexByLocation[location.id] ===
+                                    photoIndex &&
+                                  "border-accent",
+                              )}
+                              variant="dummy"
+                              size="sm"
+                            >
+                              <Image size={22} />
+                              {photo}
+                            </Button>
+                          ),
+                        )}
+                      </div>
+                      <div
+                        className={
+                          "flex-1 max-w-lg border flex items-center h-128 justify-center text-sm gap-4"
+                        }
+                      >
+                        {previewPhotoPath ? (
+                          <img
+                            className={"flex-1 object-contain max-h-full"}
+                            src={previewPhotoPath}
+                            alt={"active-photo"}
+                          />
+                        ) : (
+                          <span>
+                            <ImageDelete />
+                            No photo selected
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
         <div className="flex items-center gap-6">
           <AskAI name="me" inline />
