@@ -2,6 +2,8 @@ import {
 	Downasaur,
 	Github,
 	Home as HomeIcon,
+	Image,
+	ImageDelete,
 	Mail,
 	Notes,
 } from "@nsmr/pixelart-react";
@@ -12,7 +14,11 @@ import { ProjectListItem } from "@/components/ProjectListItem";
 import { TimeSince } from "@/components/time-since";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProjectEntry, projectList, projects } from "@/projects";
+import { locations, locationPhotos } from "@/travel";
+import { TravelListItem } from "./components/TravelListItem";
 import { ThemeToggle } from "./components/theme-toggle";
+import { Button } from "./components/ui/button";
+import { cn } from "./lib/utils";
 
 const asciiFiles = [
 	"cat-sleep.txt",
@@ -48,6 +54,8 @@ function Home() {
 	const [asciiArt, setAsciiArt] = useState("");
 	const [activeTab, setActiveTab] = useState<HomeTab>("work");
 	const [activeIndex, setActiveIndex] = useState<number | null>(null);
+	const [activeLocation, setActiveLocation] = useState<number | null>(null);
+	const [activePhoto, setActivePhoto] = useState<string | null>(null);
 	const [hasPointerInteraction, setHasPointerInteraction] = useState(false);
 	const [asciiFile] = useState(
 		() => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
@@ -204,7 +212,10 @@ function Home() {
 					onValueChange={(value) => setActiveTab(value as HomeTab)}
 					className="w-full max-w-5xl gap-0"
 				>
-					<TabsList variant="line" className="h-auto w-full gap-0 p-0">
+					<TabsList
+						variant="line"
+						className="relative z-0 h-auto w-full gap-0 p-0"
+					>
 						<TabsTrigger
 							value={homeTabs[0]}
 							className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
@@ -218,22 +229,94 @@ function Home() {
 							Travel
 						</TabsTrigger>
 					</TabsList>
-					<div className="-mt-[1.5px] border p-2">
-						<TabsContent value={homeTabs[0]}>
-							<div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-								{visibleProjects.map((project, index) => (
-									<ProjectListItem
-										key={project.metadata.slug}
-										metadata={project.metadata}
-										isDevMode={isDevMode}
-										isActive={activeIndex !== null && index === activeIndex}
-										enableHover={hasPointerInteraction}
+					<TabsContent value={homeTabs[0]} className="relative z-10">
+						<div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2 md:grid-cols-2">
+							{visibleProjects.map((project, index) => (
+								<ProjectListItem
+									key={project.metadata.slug}
+									metadata={project.metadata}
+									isDevMode={isDevMode}
+									isActive={activeIndex !== null && index === activeIndex}
+									enableHover={hasPointerInteraction}
+								/>
+							))}
+						</div>
+					</TabsContent>
+					<TabsContent value={homeTabs[1]} className="relative z-10">
+						<div className="-mt-[1px] grid grid-cols-1">
+							{locations.map((location, index) => (
+								<>
+									<TravelListItem
+										key={`${location.city} ${location.date}`}
+										metadata={location}
+										onClick={(_e) => {
+											setActivePhoto(null);
+											setActiveLocation((prev) =>
+												prev === index ? null : index,
+											);
+										}}
 									/>
-								))}
-							</div>
-						</TabsContent>
-						<TabsContent value={homeTabs[1]} />
-					</div>
+									{activeLocation === index &&
+										(locationPhotos[location.id].length === 0 ? (
+											<div className="flex">
+												<div className="flex flex-col flex-1 ml-8">
+													<Button
+														disabled
+														className={cn(
+															"flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
+														)}
+														variant="dummy"
+														size="sm"
+													>
+														<ImageDelete size={16} /> No photos available
+													</Button>
+												</div>
+											</div>
+										) : (
+											<div className="flex">
+												<div className="flex flex-col flex-1 ml-8">
+													{locationPhotos[location.id].map((photo) => (
+														<Button
+															key={photo}
+															onClick={() => {
+																const path = `/travel/${location.city} ${location.country} ${location.date}/${photo}`;
+																setActivePhoto((prev) =>
+																	prev === path ? null : path,
+																);
+															}}
+															className={cn(
+																"flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
+															)}
+															variant="dummy"
+															size="sm"
+														>
+															<Image size={22} />
+															{photo}
+														</Button>
+													))}
+												</div>
+												{activePhoto ? (
+													<img
+														className={"flex-1 max-w-sm"}
+														src={activePhoto}
+														alt={"active-photo"}
+													/>
+												) : (
+													<div
+														className={
+															"flex-1 max-w-sm border flex items-center justify-center text-sm gap-4"
+														}
+													>
+														<ImageDelete />
+														No photo selected
+													</div>
+												)}
+											</div>
+										))}
+								</>
+							))}
+						</div>
+					</TabsContent>
 				</Tabs>
 			) : (
 				<div className="w-full max-w-5xl grid grid-cols-1 gap-2 md:grid-cols-2">
