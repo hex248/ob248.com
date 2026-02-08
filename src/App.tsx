@@ -335,9 +335,9 @@ function Home() {
       }
     };
 
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown, true);
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keydown", handleKeyDown, true);
     };
   }, [
     activeHomeTab,
@@ -437,14 +437,16 @@ function Home() {
           className="relative z-0 h-auto w-full gap-0 p-0"
         >
           <TabsTrigger
+            data-keynav-nav="true"
             value={homeTabs[0]}
-            className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent"
+            className="border-border -mr-[1px] after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
           >
             Work
           </TabsTrigger>
           <TabsTrigger
+            data-keynav-nav="true"
             value={homeTabs[1]}
-            className="border-border after:hidden data-[state=active]:text-accent"
+            className="border-border after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
           >
             Travel
           </TabsTrigger>
@@ -468,8 +470,9 @@ function Home() {
             {locations.map((location, index) => (
               <Fragment key={location.id}>
                 <Button
+                  data-keynav-nav="true"
                   className={cn(
-                    "text-sm border cursor-pointer hover:border-accent justify-start w-full",
+                    "text-sm border cursor-pointer hover:border-accent justify-start w-full focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border",
                     activeLocationIndex === index &&
                       activeHomeTab === "travel" &&
                       travelFocusLevel === "location" &&
@@ -547,6 +550,7 @@ function Home() {
                           (photo, photoIndex) => (
                             <Button
                               key={photo}
+                              data-keynav-nav="true"
                               id={getTravelPhotoItemId(location.id, photoIndex)}
                               onClick={() => {
                                 const path = getTravelPhotoPath(
@@ -563,7 +567,7 @@ function Home() {
                                 setPreviewPhotoPath(path);
                               }}
                               className={cn(
-                                "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
+                                "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-borde",
                                 activeHomeTab === "travel" &&
                                   travelFocusLevel === "photo" &&
                                   activePhotoIndexByLocation[location.id] ===
@@ -655,15 +659,18 @@ function getTravelPhotoItemId(locationId: number, photoIndex: number): string {
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
   if (!(target instanceof HTMLElement)) return false;
-  if (target.isContentEditable) return true;
+
   const tagName = target.tagName;
-  return (
-    tagName === "INPUT" ||
-    tagName === "TEXTAREA" ||
-    tagName === "SELECT" ||
-    tagName === "BUTTON" ||
-    tagName === "A"
-  );
+  if (target.isContentEditable) return true;
+  if (tagName === "INPUT" || tagName === "TEXTAREA" || tagName === "SELECT") {
+    return true;
+  }
+
+  if (tagName === "BUTTON" || tagName === "A") {
+    return !target.closest('[data-keynav-nav="true"]');
+  }
+
+  return false;
 }
 
 function ProjectRoute() {
