@@ -52,10 +52,10 @@ function Home() {
   const navigate = useNavigate();
   const [asciiArt, setAsciiArt] = useState("");
   const [activeTab, setActiveTab] = useState<HomeTab>("work");
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [activeProject, setActiveProject] = useState<number | null>(null);
   const [activeLocation, setActiveLocation] = useState<number | null>(null);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
-  const [hasPointerInteraction, setHasPointerInteraction] = useState(false);
+  const [projectHasPointer, setProjectHasPointer] = useState(false);
   const [asciiFile] = useState(
     () => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
   );
@@ -81,8 +81,8 @@ function Home() {
   }, [asciiFile]);
 
   useEffect(() => {
-    setActiveIndex((prev) => {
-      if (visibleProjects.length === 0) return null;
+    setActiveProject((prev) => {
+      if (visibleProjects.length === 0) return prev;
       if (prev === null) return null;
       return Math.min(prev, visibleProjects.length - 1);
     });
@@ -120,7 +120,7 @@ function Home() {
 
       if (delta !== 0) {
         event.preventDefault();
-        setActiveIndex((prev) => {
+        setActiveProject((prev) => {
           if (prev === null) return 0;
           const next = Math.max(
             0,
@@ -132,9 +132,9 @@ function Home() {
       }
 
       if (key === "Enter") {
-        if (activeIndex === null) return;
+        if (activeProject === null) return;
         event.preventDefault();
-        const target = visibleProjects[activeIndex];
+        const target = visibleProjects[activeProject];
         if (!target) return;
         navigate(`/projects/${target.metadata.slug}`);
       }
@@ -144,11 +144,11 @@ function Home() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeIndex, navigate, visibleProjects]);
+  }, [activeProject, navigate, visibleProjects]);
 
   useEffect(() => {
     const enablePointerInteraction = () => {
-      setHasPointerInteraction(true);
+      setProjectHasPointer(true);
     };
 
     window.addEventListener("pointermove", enablePointerInteraction, {
@@ -235,8 +235,8 @@ function Home() {
                   key={project.metadata.slug}
                   metadata={project.metadata}
                   isDevMode={isDevMode}
-                  isActive={activeIndex !== null && index === activeIndex}
-                  enableHover={hasPointerInteraction}
+                  isActive={activeProject !== null && index === activeProject}
+                  enableHover={projectHasPointer}
                 />
               ))}
             </div>
@@ -329,8 +329,8 @@ function Home() {
               key={project.metadata.slug}
               metadata={project.metadata}
               isDevMode={isDevMode}
-              isActive={activeIndex !== null && index === activeIndex}
-              enableHover={hasPointerInteraction}
+              isActive={activeProject !== null && index === activeProject}
+              enableHover={projectHasPointer}
             />
           ))}
         </div>
