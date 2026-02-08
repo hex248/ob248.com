@@ -51,10 +51,23 @@ function Home() {
   const isTabsEnabled = import.meta.env.VITE_TABS === "1";
   const navigate = useNavigate();
   const [asciiArt, setAsciiArt] = useState("");
-  const [activeTab, setActiveTab] = useState<HomeTab>("work");
-  const [activeProject, setActiveProject] = useState<number | null>(null);
-  const [activeLocation, setActiveLocation] = useState<number | null>(null);
-  const [activePhoto, setActivePhoto] = useState<string | null>(null);
+  const [activeHomeTab, setActiveHomeTab] = useState<HomeTab>("work");
+  const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(
+    null,
+  );
+  const [activeLocationIndex, setActiveLocationIndex] = useState<number | null>(
+    null,
+  );
+  const [expandedLocationIndex, setExpandedLocationIndex] = useState<
+    number | null
+  >(null);
+  const [previewPhotoPath, setPreviewPhotoPath] = useState<string | null>(null);
+  const [travelFocusLevel, setTravelFocusLevel] = useState<
+    "location" | "photo"
+  >("location");
+  const [activePhotoIndexByLocation, setActivePhotoIndexByLocation] = useState<
+    Record<number, number | null>
+  >({});
   const [asciiFile] = useState(
     () => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
   );
@@ -80,7 +93,7 @@ function Home() {
   }, [asciiFile]);
 
   useEffect(() => {
-    setActiveProject((prev) => {
+    setActiveProjectIndex((prev) => {
       if (visibleProjects.length === 0) return prev;
       if (prev === null) return null;
       return Math.min(prev, visibleProjects.length - 1);
@@ -88,15 +101,31 @@ function Home() {
   }, [visibleProjects.length]);
 
   useEffect(() => {
-    if (visibleProjects.length === 0) return;
+    if (activeHomeTab !== "travel") {
+      setTravelFocusLevel("location");
+      return;
+    }
 
+    setActiveLocationIndex((prev) => {
+      if (locations.length === 0) return null;
+      if (prev === null) return 0;
+      return clampIndex(prev, locations.length);
+    });
+
+    setExpandedLocationIndex((prev) => {
+      if (prev === null || locations.length === 0) return null;
+      return clampIndex(prev, locations.length);
+    });
+  }, [activeHomeTab]);
+
+  useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.defaultPrevented || event.isComposing) return;
       if (event.metaKey || event.ctrlKey || event.altKey) return;
 
       if (isTabsEnabled && event.key === "Tab") {
         event.preventDefault();
-        setActiveTab((prev) => {
+        setActiveHomeTab((prev) => {
           const currentIndex = homeTabs.indexOf(prev);
           const safeIndex = currentIndex === -1 ? 0 : currentIndex;
           const nextIndex = (safeIndex + 1) % homeTabs.length;
@@ -108,34 +137,202 @@ function Home() {
       if (isInteractiveTarget(event.target)) return;
 
       const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
-      const isDesktop = window.matchMedia("(min-width: 768px)").matches;
-      const columns = isDesktop ? 2 : 1;
 
-      let delta = 0;
-      if (key === "ArrowLeft" || key === "h") delta = -1;
-      if (key === "ArrowRight" || key === "l") delta = 1;
-      if (key === "ArrowUp" || key === "k") delta = -columns;
-      if (key === "ArrowDown" || key === "j") delta = columns;
+      if (activeHomeTab === "work") {
+        if (visibleProjects.length === 0) return;
 
-      if (delta !== 0) {
-        event.preventDefault();
-        setActiveProject((prev) => {
-          if (prev === null) return 0;
-          const next = Math.max(
-            0,
-            Math.min(visibleProjects.length - 1, prev + delta),
+        const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+        const columns = isDesktop ? 2 : 1;
+
+        let delta = 0;
+        if (key === "ArrowLeft" || key === "h") delta = -1;
+        if (key === "ArrowRight" || key === "l") delta = 1;
+        if (key === "ArrowUp" || key === "k") delta = -columns;
+        if (key === "ArrowDown" || key === "j") delta = columns;
+
+        if (delta !== 0) {
+          event.preventDefault();
+          setActiveProjectIndex((prev) => {
+            if (prev === null) return 0;
+            return clampIndex(prev + delta, visibleProjects.length);
+          });
+          return;
+        }
+
+        if (key === "Enter") {
+          if (activeProjectIndex === null) return;
+          event.preventDefault();
+          const target = visibleProjects[activeProjectIndex];
+          if (!target) return;
+          navigate(`/projects/${target.metadata.slug}`);
+        }
+
+        return;
+      }
+
+      if (locations.length === 0) return;
+
+      const expandedLocation =
+        expandedLocationIndex === null
+          ? null
+          : locations[expandedLocationIndex];
+      const expandedLocationPhotoList = expandedLocation
+        ? (locationPhotos[expandedLocation.id] ?? [])
+        : [];
+      const isAtPhotoLevel =
+        travelFocusLevel === "photo" &&
+        expandedLocationIndex !== null &&
+        expandedLocationPhotoList.length > 0;
+
+      const locationDelta = getLinearDelta(key);
+      if (isAtPhotoLevel) {
+        if (expandedLocationIndex === null || !expandedLocation) return;
+
+        const locationId = expandedLocation.id;
+        const currentPhotoIndex = activePhotoIndexByLocation[locationId] ?? 0;
+
+        if ((key === "ArrowUp" || key === "k") && currentPhotoIndex === 0) {
+          event.preventDefault();
+          setTravelFocusLevel("location");
+          return;
+        }
+
+        if (
+          (key === "ArrowDown" || key === "j") &&
+          currentPhotoIndex === expandedLocationPhotoList.length - 1
+        ) {
+          event.preventDefault();
+          setTravelFocusLevel("location");
+          setActiveLocationIndex(
+            clampIndex(expandedLocationIndex + 1, locations.length),
           );
-          return next;
+          return;
+        }
+
+        if (locationDelta !== 0) {
+          event.preventDefault();
+          const nextPhotoIndex = clampIndex(
+            currentPhotoIndex + locationDelta,
+            expandedLocationPhotoList.length,
+          );
+
+          setActivePhotoIndexByLocation((prev) => ({
+            ...prev,
+            [locationId]: nextPhotoIndex,
+          }));
+
+          const nextPhotoName = expandedLocationPhotoList[nextPhotoIndex];
+          if (nextPhotoName) {
+            setPreviewPhotoPath(
+              getTravelPhotoPath(expandedLocation, nextPhotoName),
+            );
+          }
+          return;
+        }
+
+        return;
+      }
+
+      if (locationDelta !== 0) {
+        if (
+          (key === "ArrowUp" || key === "k") &&
+          activeLocationIndex !== null
+        ) {
+          const nextLocationIndex = clampIndex(
+            activeLocationIndex - 1,
+            locations.length,
+          );
+          const nextLocation = locations[nextLocationIndex];
+          const nextLocationPhotos = nextLocation
+            ? (locationPhotos[nextLocation.id] ?? [])
+            : [];
+          const lastPhotoIndex = nextLocationPhotos.length - 1;
+          const lastPhotoName = nextLocationPhotos[lastPhotoIndex];
+
+          if (
+            expandedLocationIndex === nextLocationIndex &&
+            nextLocation &&
+            lastPhotoName
+          ) {
+            event.preventDefault();
+            setActiveLocationIndex(nextLocationIndex);
+            setActivePhotoIndexByLocation((prev) => ({
+              ...prev,
+              [nextLocation.id]: lastPhotoIndex,
+            }));
+            setPreviewPhotoPath(
+              getTravelPhotoPath(nextLocation, lastPhotoName),
+            );
+            setTravelFocusLevel("photo");
+            return;
+          }
+        }
+
+        if (
+          activeLocationIndex !== null &&
+          expandedLocationIndex === activeLocationIndex &&
+          (key === "ArrowDown" || key === "j")
+        ) {
+          const location = locations[activeLocationIndex];
+          const photoList = location ? (locationPhotos[location.id] ?? []) : [];
+          const firstPhotoName = photoList[0];
+
+          if (location && firstPhotoName) {
+            event.preventDefault();
+            setActivePhotoIndexByLocation((prev) => ({
+              ...prev,
+              [location.id]: 0,
+            }));
+            setPreviewPhotoPath(getTravelPhotoPath(location, firstPhotoName));
+            setTravelFocusLevel("photo");
+            return;
+          }
+        }
+
+        event.preventDefault();
+        setActiveLocationIndex((prev) => {
+          if (prev === null) return 0;
+          return clampIndex(prev + locationDelta, locations.length);
         });
         return;
       }
 
       if (key === "Enter") {
-        if (activeProject === null) return;
+        if (activeLocationIndex === null) return;
         event.preventDefault();
-        const target = visibleProjects[activeProject];
-        if (!target) return;
-        navigate(`/projects/${target.metadata.slug}`);
+
+        if (expandedLocationIndex === activeLocationIndex) {
+          setExpandedLocationIndex(null);
+          setPreviewPhotoPath(null);
+          setTravelFocusLevel("location");
+          return;
+        }
+
+        const location = locations[activeLocationIndex];
+        if (!location) return;
+
+        const photoList = locationPhotos[location.id] ?? [];
+        setExpandedLocationIndex(activeLocationIndex);
+
+        if (photoList.length === 0) {
+          setPreviewPhotoPath(null);
+          setTravelFocusLevel("location");
+          return;
+        }
+
+        const nextPhotoIndex = clampIndex(
+          activePhotoIndexByLocation[location.id] ?? 0,
+          photoList.length,
+        );
+        const nextPhotoName = photoList[nextPhotoIndex];
+        if (!nextPhotoName) return;
+
+        setActivePhotoIndexByLocation((prev) => ({
+          ...prev,
+          [location.id]: nextPhotoIndex,
+        }));
+        setPreviewPhotoPath(getTravelPhotoPath(location, nextPhotoName));
+        setTravelFocusLevel("photo");
       }
     };
 
@@ -143,7 +340,16 @@ function Home() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [activeProject, navigate, visibleProjects]);
+  }, [
+    activeHomeTab,
+    activeLocationIndex,
+    activePhotoIndexByLocation,
+    activeProjectIndex,
+    expandedLocationIndex,
+    navigate,
+    travelFocusLevel,
+    visibleProjects,
+  ]);
 
   return (
     <div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
@@ -188,8 +394,8 @@ function Home() {
       </div>
       {isTabsEnabled ? (
         <Tabs
-          value={activeTab}
-          onValueChange={(value) => setActiveTab(value as HomeTab)}
+          value={activeHomeTab}
+          onValueChange={(value) => setActiveHomeTab(value as HomeTab)}
           className="w-full max-w-5xl gap-0"
         >
           <TabsList
@@ -216,7 +422,9 @@ function Home() {
                   key={project.metadata.slug}
                   metadata={project.metadata}
                   isDevMode={isDevMode}
-                  isActive={activeProject !== null && index === activeProject}
+                  isActive={
+                    activeProjectIndex !== null && index === activeProjectIndex
+                  }
                 />
               ))}
             </div>
@@ -224,23 +432,62 @@ function Home() {
           <TabsContent value={homeTabs[1]} className="relative z-10">
             <div className="-mt-[1px] grid grid-cols-1">
               {locations.map((location, index) => (
-                <>
+                <div key={location.id}>
                   <Button
                     className={cn(
                       "text-sm border cursor-pointer hover:border-accent justify-start",
+                      activeLocationIndex === index &&
+                        activeHomeTab === "travel" &&
+                        travelFocusLevel === "location" &&
+                        "border-accent",
                     )}
                     onClick={(_e) => {
-                      setActivePhoto(null);
-                      setActiveLocation((prev) =>
-                        prev === index ? null : index,
+                      const isExpanded = expandedLocationIndex === index;
+                      const photos = locationPhotos[location.id] ?? [];
+
+                      setActiveLocationIndex(index);
+
+                      if (isExpanded) {
+                        setExpandedLocationIndex(null);
+                        setTravelFocusLevel("location");
+                        setPreviewPhotoPath(null);
+                        return;
+                      }
+
+                      setExpandedLocationIndex(index);
+
+                      if (photos.length === 0) {
+                        setTravelFocusLevel("location");
+                        setPreviewPhotoPath(null);
+                        return;
+                      }
+
+                      const nextPhotoIndex = clampIndex(
+                        activePhotoIndexByLocation[location.id] ?? 0,
+                        photos.length,
                       );
+                      const nextPhotoName = photos[nextPhotoIndex];
+                      if (!nextPhotoName) {
+                        setTravelFocusLevel("location");
+                        setPreviewPhotoPath(null);
+                        return;
+                      }
+
+                      setActivePhotoIndexByLocation((prev) => ({
+                        ...prev,
+                        [location.id]: nextPhotoIndex,
+                      }));
+                      setPreviewPhotoPath(
+                        getTravelPhotoPath(location, nextPhotoName),
+                      );
+                      setTravelFocusLevel("photo");
                     }}
                     variant="dummy"
                     size="sm"
                   >
                     {location.city}, {location.country} - {location.date}
                   </Button>
-                  {activeLocation === index &&
+                  {expandedLocationIndex === index &&
                     (locationPhotos[location.id].length === 0 ? (
                       <div className="flex">
                         <div className="flex flex-col flex-1 ml-8">
@@ -259,30 +506,45 @@ function Home() {
                     ) : (
                       <div className="flex">
                         <div className="flex flex-col flex-1 ml-8">
-                          {locationPhotos[location.id].map((photo) => (
-                            <Button
-                              key={photo}
-                              onClick={() => {
-                                const path = `/travel/${location.city} ${location.country} ${location.date}/${photo}`;
-                                setActivePhoto((prev) =>
-                                  prev === path ? null : path,
-                                );
-                              }}
-                              className={cn(
-                                "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
-                              )}
-                              variant="dummy"
-                              size="sm"
-                            >
-                              <Image size={22} />
-                              {photo}
-                            </Button>
-                          ))}
+                          {locationPhotos[location.id].map(
+                            (photo, photoIndex) => (
+                              <Button
+                                key={photo}
+                                onClick={() => {
+                                  const path = getTravelPhotoPath(
+                                    location,
+                                    photo,
+                                  );
+                                  setActiveLocationIndex(index);
+                                  setExpandedLocationIndex(index);
+                                  setTravelFocusLevel("photo");
+                                  setActivePhotoIndexByLocation((prev) => ({
+                                    ...prev,
+                                    [location.id]: photoIndex,
+                                  }));
+                                  setPreviewPhotoPath(path);
+                                }}
+                                className={cn(
+                                  "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 ",
+                                  activeHomeTab === "travel" &&
+                                    travelFocusLevel === "photo" &&
+                                    activePhotoIndexByLocation[location.id] ===
+                                      photoIndex &&
+                                    "border-accent",
+                                )}
+                                variant="dummy"
+                                size="sm"
+                              >
+                                <Image size={22} />
+                                {photo}
+                              </Button>
+                            ),
+                          )}
                         </div>
-                        {activePhoto ? (
+                        {previewPhotoPath ? (
                           <img
                             className={"flex-1 max-w-sm"}
-                            src={activePhoto}
+                            src={previewPhotoPath}
                             alt={"active-photo"}
                           />
                         ) : (
@@ -297,7 +559,7 @@ function Home() {
                         )}
                       </div>
                     ))}
-                </>
+                </div>
               ))}
             </div>
           </TabsContent>
@@ -309,7 +571,9 @@ function Home() {
               key={project.metadata.slug}
               metadata={project.metadata}
               isDevMode={isDevMode}
-              isActive={activeProject !== null && index === activeProject}
+              isActive={
+                activeProjectIndex !== null && index === activeProjectIndex
+              }
             />
           ))}
         </div>
@@ -327,6 +591,32 @@ function Home() {
       </div>
     </div>
   );
+}
+
+function clampIndex(index: number, itemCount: number): number {
+  return Math.max(0, Math.min(itemCount - 1, index));
+}
+
+function getLinearDelta(key: string): number {
+  if (key === "ArrowLeft" || key === "h" || key === "ArrowUp" || key === "k") {
+    return -1;
+  }
+  if (
+    key === "ArrowRight" ||
+    key === "l" ||
+    key === "ArrowDown" ||
+    key === "j"
+  ) {
+    return 1;
+  }
+  return 0;
+}
+
+function getTravelPhotoPath(
+  location: { city: string; country: string; date: string },
+  photo: string,
+): string {
+  return `/travel/${location.city} ${location.country} ${location.date}/${photo}`;
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
