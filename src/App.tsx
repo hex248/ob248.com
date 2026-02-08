@@ -55,7 +55,6 @@ function Home() {
   const [activeProject, setActiveProject] = useState<number | null>(null);
   const [activeLocation, setActiveLocation] = useState<number | null>(null);
   const [activePhoto, setActivePhoto] = useState<string | null>(null);
-  const [projectHasPointer, setProjectHasPointer] = useState(false);
   const [asciiFile] = useState(
     () => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
   );
@@ -146,24 +145,6 @@ function Home() {
     };
   }, [activeProject, navigate, visibleProjects]);
 
-  useEffect(() => {
-    const enablePointerInteraction = () => {
-      setProjectHasPointer(true);
-    };
-
-    window.addEventListener("pointermove", enablePointerInteraction, {
-      once: true,
-    });
-    window.addEventListener("pointerdown", enablePointerInteraction, {
-      once: true,
-    });
-
-    return () => {
-      window.removeEventListener("pointermove", enablePointerInteraction);
-      window.removeEventListener("pointerdown", enablePointerInteraction);
-    };
-  }, []);
-
   return (
     <div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
       <div className="flex flex-col items-center gap-4 mb-4">
@@ -236,7 +217,6 @@ function Home() {
                   metadata={project.metadata}
                   isDevMode={isDevMode}
                   isActive={activeProject !== null && index === activeProject}
-                  enableHover={projectHasPointer}
                 />
               ))}
             </div>
@@ -330,7 +310,6 @@ function Home() {
               metadata={project.metadata}
               isDevMode={isDevMode}
               isActive={activeProject !== null && index === activeProject}
-              enableHover={projectHasPointer}
             />
           ))}
         </div>
