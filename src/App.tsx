@@ -505,11 +505,18 @@ function Home() {
                       </div>
                     ) : (
                       <div className="flex">
-                        <div className="flex flex-col flex-1 ml-8">
+                        <div
+                          id={getTravelPhotoListId(location.id)}
+                          className="flex flex-col flex-1 ml-8 max-h-128 overflow-y-auto gap-1"
+                        >
                           {locationPhotos[location.id].map(
                             (photo, photoIndex) => (
                               <Button
                                 key={photo}
+                                id={getTravelPhotoItemId(
+                                  location.id,
+                                  photoIndex,
+                                )}
                                 onClick={() => {
                                   const path = getTravelPhotoPath(
                                     location,
@@ -541,22 +548,24 @@ function Home() {
                             ),
                           )}
                         </div>
-                        {previewPhotoPath ? (
-                          <img
-                            className={"flex-1 max-w-sm"}
-                            src={previewPhotoPath}
-                            alt={"active-photo"}
-                          />
-                        ) : (
-                          <div
-                            className={
-                              "flex-1 max-w-sm border flex items-center justify-center text-sm gap-4"
-                            }
-                          >
-                            <ImageDelete />
-                            No photo selected
-                          </div>
-                        )}
+                        <div
+                          className={
+                            "flex-1 max-w-sm border flex items-center h-128 justify-center text-sm gap-4"
+                          }
+                        >
+                          {previewPhotoPath ? (
+                            <img
+                              className={"flex-1 max-w-sm"}
+                              src={previewPhotoPath}
+                              alt={"active-photo"}
+                            />
+                          ) : (
+                            <span>
+                              <ImageDelete />
+                              No photo selected
+                            </span>
+                          )}
+                        </div>
                       </div>
                     ))}
                 </div>
