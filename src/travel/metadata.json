@@ -1,23 +1,23 @@
 [
-	{
-		"id": 1,
-		"continent": "Europe",
-		"country": "Italy",
-		"city": "Bologna",
-		"date": "June"
-	},
-	{
-		"id": 2,
-		"continent": "Europe",
-		"country": "Hungary",
-		"city": "Budapest",
-		"date": "September"
-	},
-	{
-		"id": 3,
-		"continent": "Europe",
-		"country": "Spain",
-		"city": "Barcelona",
-		"date": "October"
-	}
+  {
+    "id": 1,
+    "continent": "Europe",
+    "country": "Italy",
+    "city": "Bologna",
+    "date": "June"
+  },
+  {
+    "id": 2,
+    "continent": "Europe",
+    "country": "Hungary",
+    "city": "Budapest",
+    "date": "September"
+  },
+  {
+    "id": 3,
+    "continent": "Europe",
+    "country": "Spain",
+    "city": "Barcelona",
+    "date": "October"
+  }
 ]
