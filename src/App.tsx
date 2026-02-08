@@ -541,7 +541,7 @@ function Home() {
                     <div className="flex">
                       <div
                         id={getTravelPhotoListId(location.id)}
-                        className="flex flex-col flex-1 ml-8 max-h-128 overflow-y-auto gap-1"
+                        className="flex flex-col flex-1 ml-8 max-h-128 overflow-y-auto"
                       >
                         {locationPhotos[location.id].map(
                           (photo, photoIndex) => (
