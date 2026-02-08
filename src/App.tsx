@@ -351,6 +351,42 @@ function Home() {
     visibleProjects,
   ]);
 
+  useEffect(() => {
+    if (activeHomeTab !== "travel") return;
+    if (travelFocusLevel !== "photo") return;
+    if (expandedLocationIndex === null) return;
+
+    const location = locations[expandedLocationIndex];
+    if (!location) return;
+
+    const activePhotoIndex = activePhotoIndexByLocation[location.id];
+    if (activePhotoIndex === null || activePhotoIndex === undefined) return;
+
+    const photoListElement = document.getElementById(
+      getTravelPhotoListId(location.id),
+    );
+    const activePhotoElement = document.getElementById(
+      getTravelPhotoItemId(location.id, activePhotoIndex),
+    );
+
+    if (!(photoListElement instanceof HTMLElement)) return;
+    if (!(activePhotoElement instanceof HTMLElement)) return;
+
+    const listRect = photoListElement.getBoundingClientRect();
+    const activeRect = activePhotoElement.getBoundingClientRect();
+    const isAbove = activeRect.top < listRect.top;
+    const isBelow = activeRect.bottom > listRect.bottom;
+
+    if (isAbove || isBelow) {
+      activePhotoElement.scrollIntoView({ block: "nearest" });
+    }
+  }, [
+    activeHomeTab,
+    activePhotoIndexByLocation,
+    expandedLocationIndex,
+    travelFocusLevel,
+  ]);
+
   return (
     <div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
       <div className="flex flex-col items-center gap-4 mb-4">
@@ -626,6 +662,14 @@ function getTravelPhotoPath(
   photo: string,
 ): string {
   return `/travel/${location.city} ${location.country} ${location.date}/${photo}`;
+}
+
+function getTravelPhotoListId(locationId: number): string {
+  return `travel-photo-list-${locationId}`;
+}
+
+function getTravelPhotoItemId(locationId: number, photoIndex: number): string {
+  return `travel-photo-item-${locationId}-${photoIndex}`;
 }
 
 function isInteractiveTarget(target: EventTarget | null): boolean {
