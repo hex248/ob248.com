@@ -22,6 +22,7 @@ import { cn } from "./lib/utils";
 const asciiFiles = [
   "cat-sleep.txt",
   "polar-bear.txt",
+  "polar-bear-sitting.txt",
   "penguin-surfboard.txt",
   "cat-shock.txt",
   "exclamation.txt",
