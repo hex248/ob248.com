@@ -9,7 +9,10 @@ import {
 } from "@nsmr/pixelart-react";
 import { Fragment, useEffect, useState } from "react";
 import { Link, Route, Routes, useNavigate, useParams } from "react-router-dom";
+import { type BlogEntry, blogPostList, blogPosts } from "@/blog";
 import { AskAI } from "@/components/ask-ai";
+import { BlogListItem } from "@/components/BlogListItem";
+import { BlogPage } from "@/components/BlogPage";
 import { ProjectListItem } from "@/components/ProjectListItem";
 import { TimeSince } from "@/components/time-since";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -32,7 +35,7 @@ const asciiFiles = [
   "cat-loaf.txt",
 ];
 
-const homeTabs = ["work", "travel"] as const;
+const homeTabs = ["work", "travel", "blog"] as const;
 type HomeTab = (typeof homeTabs)[number];
 
 function App() {
@@ -40,6 +43,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/projects/:slug" element={<ProjectRoute />} />
+      <Route path="/blog/:slug" element={<BlogRoute />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   );
@@ -55,6 +59,7 @@ function Home() {
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(
     null,
   );
+  const [activeBlogIndex, setActiveBlogIndex] = useState<number | null>(null);
   const [activeLocationIndex, setActiveLocationIndex] = useState<number | null>(
     null,
   );
@@ -79,6 +84,14 @@ function Home() {
   const visibleProjects = sortedProjects.filter(
     (project) => isDevMode || !project.metadata.hidden,
   );
+  const sortedBlogPosts: BlogEntry[] = [...blogPostList].sort(
+    (a, b) =>
+      parseDate(b.metadata.date).getTime() -
+      parseDate(a.metadata.date).getTime(),
+  );
+  const visibleBlogPosts = sortedBlogPosts.filter(
+    (post) => isDevMode || !post.metadata.hidden,
+  );
 
   useEffect(() => {
     let isActive = true;
@@ -99,6 +112,14 @@ function Home() {
       return Math.min(prev, visibleProjects.length - 1);
     });
   }, [visibleProjects.length]);
+
+  useEffect(() => {
+    setActiveBlogIndex((prev) => {
+      if (visibleBlogPosts.length === 0) return prev;
+      if (prev === null) return null;
+      return Math.min(prev, visibleBlogPosts.length - 1);
+    });
+  }, [visibleBlogPosts.length]);
 
   useEffect(() => {
     if (activeHomeTab !== "travel") {
@@ -165,6 +186,30 @@ function Home() {
           const target = visibleProjects[activeProjectIndex];
           if (!target) return;
           navigate(`/projects/${target.metadata.slug}`);
+        }
+
+        return;
+      }
+
+      if (activeHomeTab === "blog") {
+        if (visibleBlogPosts.length === 0) return;
+
+        const delta = getLinearDelta(key);
+        if (delta !== 0) {
+          event.preventDefault();
+          setActiveBlogIndex((prev) => {
+            if (prev === null) return 0;
+            return clampIndex(prev + delta, visibleBlogPosts.length);
+          });
+          return;
+        }
+
+        if (key === "Enter") {
+          if (activeBlogIndex === null) return;
+          event.preventDefault();
+          const target = visibleBlogPosts[activeBlogIndex];
+          if (!target) return;
+          navigate(`/blog/${target.metadata.slug}`);
         }
 
         return;
@@ -342,12 +387,14 @@ function Home() {
     };
   }, [
     activeHomeTab,
+    activeBlogIndex,
     activeLocationIndex,
     activePhotoIndexByLocation,
     activeProjectIndex,
     expandedLocationIndex,
     navigate,
     travelFocusLevel,
+    visibleBlogPosts,
     visibleProjects,
   ]);
 
@@ -450,6 +497,13 @@ function Home() {
             className="border-border after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
           >
             Travel
+          </TabsTrigger>
+          <TabsTrigger
+            data-keynav-nav="true"
+            value={homeTabs[2]}
+            className="border-border -ml-[1px] after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
+          >
+            Blog
           </TabsTrigger>
         </TabsList>
         <TabsContent value={homeTabs[0]} className="relative z-10">
@@ -608,6 +662,18 @@ function Home() {
             ))}
           </div>
         </TabsContent>
+        <TabsContent value={homeTabs[2]} className="relative z-10">
+          <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2">
+            {visibleBlogPosts.map((post, index) => (
+              <BlogListItem
+                key={post.metadata.slug}
+                metadata={post.metadata}
+                isDevMode={isDevMode}
+                isActive={activeBlogIndex !== null && index === activeBlogIndex}
+              />
+            ))}
+          </div>
+        </TabsContent>
       </Tabs>
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
         <div className="flex items-center gap-6">
@@ -680,6 +746,14 @@ function ProjectRoute() {
 
   const { Component } = projects[slug];
   return <Component />;
+}
+
+function BlogRoute() {
+  const { slug } = useParams();
+  if (!slug || !blogPosts[slug]) return <NotFound />;
+
+  const { metadata, content } = blogPosts[slug];
+  return <BlogPage metadata={metadata} content={content} />;
 }
 
 function NotFound() {
