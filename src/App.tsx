@@ -35,7 +35,12 @@ const asciiFiles = [
   "cat-loaf.txt",
 ];
 
-const homeTabs = ["work", "travel", "blog"] as const;
+const isBlogEnabled = import.meta.env.VITE_BLOG === "1";
+const homeTabs = [
+  "work",
+  "travel",
+  ...(isBlogEnabled ? ["blog"] : []),
+] as const;
 type HomeTab = (typeof homeTabs)[number];
 
 function App() {
@@ -498,13 +503,15 @@ function Home() {
           >
             Travel
           </TabsTrigger>
-          <TabsTrigger
-            data-keynav-nav="true"
-            value={homeTabs[2]}
-            className="border-border -ml-[1px] after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
-          >
-            Blog
-          </TabsTrigger>
+          {isBlogEnabled && (
+            <TabsTrigger
+              data-keynav-nav="true"
+              value="blog"
+              className="border-border -ml-[1px] after:hidden data-[state=active]:text-accent focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border"
+            >
+              Blog
+            </TabsTrigger>
+          )}
         </TabsList>
         <TabsContent value={homeTabs[0]} className="relative z-10">
           <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -662,18 +669,22 @@ function Home() {
             ))}
           </div>
         </TabsContent>
-        <TabsContent value={homeTabs[2]} className="relative z-10">
-          <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2">
-            {visibleBlogPosts.map((post, index) => (
-              <BlogListItem
-                key={post.metadata.slug}
-                metadata={post.metadata}
-                isDevMode={isDevMode}
-                isActive={activeBlogIndex !== null && index === activeBlogIndex}
-              />
-            ))}
-          </div>
-        </TabsContent>
+        {isBlogEnabled && (
+          <TabsContent value="blog" className="relative z-10">
+            <div className="-mt-[1.5px] border p-2 grid grid-cols-1 gap-2">
+              {visibleBlogPosts.map((post, index) => (
+                <BlogListItem
+                  key={post.metadata.slug}
+                  metadata={post.metadata}
+                  isDevMode={isDevMode}
+                  isActive={
+                    activeBlogIndex !== null && index === activeBlogIndex
+                  }
+                />
+              ))}
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-3 md:gap-4">
         <div className="flex items-center gap-6">
@@ -750,7 +761,7 @@ function ProjectRoute() {
 
 function BlogRoute() {
   const { slug } = useParams();
-  if (!slug || !blogPosts[slug]) return <NotFound />;
+  if (!isBlogEnabled || !slug || !blogPosts[slug]) return <NotFound />;
 
   const { metadata, content } = blogPosts[slug];
   return <BlogPage metadata={metadata} content={content} />;
