@@ -18,8 +18,8 @@ export function FontsProject() {
     <ProjectPage metadata={metadata}>
       <p className="mb-4 text-pretty">
         fonts.ob248.com is a lightweight site for browsing and using my go-to
-        fonts. It simplifies the importing processign for .ttf and .otf fonts on
-        the web.
+        fonts. It simplifies the importing process for .woff2, .ttf, and .otf
+        fonts on the web.
       </p>
 
       <div className="mt-4">
