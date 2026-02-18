@@ -62,12 +62,14 @@ export function SpotifyPlayingSmall() {
   if (item) {
     return (
       <a
-        className="flex items-center gap-2 px-1 py-1 pr-2"
+        className="flex items-center gap-2 px-1 py-1 pr-2 pointer"
         style={{
           backgroundColor: colours?.hex,
           color: colours?.oppositeHex,
         }}
         href={item.external_urls.spotify}
+        target="_blank"
+        rel="noreferrer"
       >
         <img
           src={item.album.images[0]?.url}
