@@ -1,11 +1,15 @@
 import { Music } from "@nsmr/pixelart-react";
-import type { CurrentlyPlaying, EpisodeObject, TrackObject } from "lib/spotify";
 import { useEffect, useRef, useState } from "react";
+import type {
+  CurrentlyPlaying,
+  EpisodeObject,
+  TrackObject,
+} from "@/types/spotify";
 
 function isEpisodeObject(
   item: CurrentlyPlaying["item"],
 ): item is EpisodeObject {
-  return item !== undefined && "show" in item;
+  return item != null && typeof item === "object" && "show" in item;
 }
 
 type ColourFromImageResponse = {
@@ -26,8 +30,8 @@ const formatName = (name: string) => {
     " \\[from",
     " \\[ft",
   ];
-  for (let thing of thingsToRemove) {
-    let regex = new RegExp(thing, "i");
+  for (const thing of thingsToRemove) {
+    const regex = new RegExp(thing, "i");
     newName = newName.split(regex)[0];
   }
   return newName;
