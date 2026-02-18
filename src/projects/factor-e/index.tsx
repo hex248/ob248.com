@@ -24,7 +24,7 @@ export function FactorEProject() {
           href="https://www.raylib.com/"
           target="_blank"
           rel="noopener noreferrer"
-          className="link-project-page"
+          className="pointer"
         >
           raylib
         </a>
@@ -33,7 +33,7 @@ export function FactorEProject() {
           href="https://store.steampowered.com/app/3433610/Terrafactor/"
           target="_blank"
           rel="noopener noreferrer"
-          className="link-project-page"
+          className="pointer"
         >
           Terrafactor
         </a>

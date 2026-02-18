@@ -49,7 +49,7 @@ export function AskAI({
           href={chatGptUrl + encodedPrompt}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-fg hover:text-accent"
+          className="text-fg hover:text-accent pointer"
           title={"Ask ChatGPT"}
         >
           <Icon icon="simple-icons:openai" className="size-6" />
@@ -58,7 +58,7 @@ export function AskAI({
           href={`${claudeUrl}${encodedPrompt}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-fg hover:text-accent"
+          className="text-fg hover:text-accent pointer"
           title="Ask Claude"
         >
           <Icon icon="simple-icons:claude" className="size-6" />
@@ -67,7 +67,7 @@ export function AskAI({
           <button
             type="button"
             onClick={handleCopy}
-            className="text-fg hover:text-accent cursor-pointer flex items-center"
+            className="text-fg hover:text-accent pointer flex items-center"
             title="Copy prompt to clipboard"
             aria-label="Copy prompt to clipboard"
           >

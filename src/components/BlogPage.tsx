@@ -44,7 +44,7 @@ export function BlogPage({
       </p>
       <Link
         to="/"
-        className="inline-flex items-center text-sm hover:text-accent mb-4"
+        className="inline-flex items-center text-sm hover:text-accent mb-4 pointer"
       >
         <Home />
       </Link>

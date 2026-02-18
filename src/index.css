@@ -43,6 +43,8 @@
   --sidebar-accent-foreground: #3a3329;
   --sidebar-border: #cbbfae;
   --sidebar-ring: #8f7b60;
+  --cursor: url("cursors/cursor-light.png"), auto;
+  --pointer: url("cursors/pointer-light.png"), auto;
 }
 
 @theme inline {
@@ -118,6 +120,8 @@
   --sidebar-accent-foreground: #f1e9dc;
   --sidebar-border: #3b3328;
   --sidebar-ring: #9d8568;
+  --cursor: url("cursors/cursor-dark.png"), auto;
+  --pointer: url("cursors/pointer-dark.png"), auto;
 }
 
 @layer base {
@@ -169,4 +173,12 @@ body {
 .picnic {
   font-family: "PicNic", serif;
   font-weight: 700;
+}
+
+.cursor {
+  cursor: var(--cursor);
+}
+
+.pointer {
+  cursor: var(--pointer);
 }

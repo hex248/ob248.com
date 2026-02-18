@@ -19,7 +19,7 @@ export function BlogListItem({
       to={`/blog/${metadata.slug}`}
       className={cn(
         "group relative block flex flex-col justify-between transition-colors duration-200 border-2",
-        "hover:border-accent",
+        "hover:border-accent pointer",
         isActive && "border-accent",
         isDevMode && metadata.hidden && "border-dashed border-accent",
       )}

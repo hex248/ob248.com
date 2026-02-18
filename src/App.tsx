@@ -455,7 +455,7 @@ function Home() {
             href="https://github.com/hex248"
             rel="noreferrer"
             target="_blank"
-            className="inline-flex items-center gap-2 hover:text-accent"
+            className="inline-flex items-center gap-2 hover:text-accent pointer"
           >
             <Github className="size-6" />
             hex248
@@ -463,7 +463,7 @@ function Home() {
           <span className="text-fg/60">/</span>
           <a
             href="mailto:ob248@proton.me"
-            className="inline-flex items-center gap-2 hover:text-accent"
+            className="inline-flex items-center gap-2 hover:text-accent pointer"
           >
             <Mail className="size-6" />
             ob248@proton.me
@@ -471,7 +471,7 @@ function Home() {
           <span className="text-fg/60">/</span>
           <a
             href="/cv.pdf"
-            className="inline-flex items-center gap-2 hover:text-accent"
+            className="inline-flex items-center gap-2 hover:text-accent pointer"
           >
             <Notes className="size-6" /> CV
           </a>
@@ -534,7 +534,7 @@ function Home() {
                 <Button
                   data-keynav-nav="true"
                   className={cn(
-                    "text-sm border cursor-pointer hover:border-accent justify-start w-full focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border",
+                    "text-sm border pointer hover:border-accent justify-start w-full focus-visible:ring-0 focus-visible:outline-none focus-visible:border-border",
                     activeLocationIndex === index &&
                       activeHomeTab === "travel" &&
                       travelFocusLevel === "location" &&
@@ -593,7 +593,7 @@ function Home() {
                         <Button
                           disabled
                           className={cn(
-                            "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 w-full",
+                            "flex text-sm border pointer hover:border-accent items-center justify-start p-0 pl-2 w-full",
                           )}
                           variant="dummy"
                           size="sm"
@@ -629,7 +629,7 @@ function Home() {
                                 setPreviewPhotoPath(path);
                               }}
                               className={cn(
-                                "flex text-sm border cursor-pointer hover:border-accent items-center justify-start p-0 pl-2 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-borde",
+                                "flex text-sm border pointer hover:border-accent items-center justify-start p-0 pl-2 focus-visible:ring-0 focus-visible:outline-none focus-visible:border-borde",
                                 activeHomeTab === "travel" &&
                                   travelFocusLevel === "photo" &&
                                   activePhotoIndexByLocation[location.id] ===
@@ -777,7 +777,7 @@ function NotFound() {
       <span className="text-7xl">404</span>
       <span className="text-2xl">Not Found</span>
 
-      <Link to="/">
+      <Link to="/" className={"pointer"}>
         <HomeIcon className="size-12 hover:text-accent" />
       </Link>
     </div>

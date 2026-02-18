@@ -44,7 +44,7 @@ export function ProjectPage({
       </p>
       <Link
         to="/"
-        className="inline-flex items-center text-sm hover:text-accent mb-4"
+        className="inline-flex items-center text-sm hover:text-accent mb-4 pointer"
       >
         <Home />
       </Link>
@@ -80,7 +80,7 @@ export function ProjectPage({
             href={metadata.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="link-project-page inline-block text-accent hover:underline underline-offset-2 text-sm"
+            className="inline-block text-accent hover:underline underline-offset-2 text-sm pointer"
           >
             Try {metadata.title}
           </a>
@@ -97,7 +97,7 @@ export function ProjectPage({
               href={metadata.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-green-500 hover:underline"
+              className="text-green-500 hover:underline pointer"
             >
               Source Code
             </a>
@@ -130,7 +130,7 @@ export function ProjectPage({
               href={metadata.github}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-green-500 hover:underline"
+              className="text-green-500 hover:underline pointer"
             >
               Source Code
             </a>
