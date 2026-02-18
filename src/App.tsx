@@ -18,9 +18,10 @@ import { TimeSince } from "@/components/time-since";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { locationPhotos, locations } from "@/travel";
-import { ThemeToggle } from "./components/theme-toggle";
-import { Button } from "./components/ui/button";
-import { cn } from "./lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { SpotifyPlayingSmall } from "@/components/spotify-playing-small";
 
 const asciiFiles = [
   "cat-sleep.txt",
@@ -479,6 +480,7 @@ function Home() {
         <div className="text-base text-fg">
           Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
         </div>
+        <SpotifyPlayingSmall />
       </div>
       <Tabs
         value={activeHomeTab}
