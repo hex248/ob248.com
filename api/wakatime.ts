@@ -1,6 +1,49 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 
-const refresh = async (refreshToken: string) => {
+const CONFIG_PATH = `${process.cwd()}/wakatime.json`;
+const REFRESH_WINDOW_SECONDS = 10 * 60;
+
+type WakaConfig = {
+  access_token?: string;
+  refresh_token?: string;
+  expires_at?: number;
+};
+
+type TokenState = {
+  accessToken: string | null;
+  refreshToken: string | null;
+  expiresAt: number | null;
+};
+
+const parseRefreshPayload = (
+  text: string,
+): WakaConfig & { expires_in?: number | string } => {
+  try {
+    return JSON.parse(text) as WakaConfig & { expires_in?: number | string };
+  } catch {
+    const params = new URLSearchParams(text);
+    return {
+      access_token: params.get("access_token") ?? undefined,
+      refresh_token: params.get("refresh_token") ?? undefined,
+      expires_in: params.get("expires_in") ?? undefined,
+    };
+  }
+};
+
+const toEpochSeconds = (
+  value: number | string | null | undefined,
+): number | null => {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return parsed > 1_000_000_000_000
+    ? Math.floor(parsed / 1000)
+    : Math.floor(parsed);
+};
+
+const refresh = async (refreshToken: string): Promise<TokenState> => {
   const body = new URLSearchParams({
     client_id: process.env.WAKATIME_CLIENT_ID ?? "",
     client_secret: process.env.WAKATIME_CLIENT_SECRET ?? "",
@@ -21,33 +64,16 @@ const refresh = async (refreshToken: string) => {
   });
 
   const text = await response.text();
-
-  if (response.status !== 200) {
+  if (!response.ok) {
     throw new Error(
       `Failed to refresh token (status ${response.status}): ${text}`,
     );
   }
 
-  let parsed: {
-    access_token?: string;
-    refresh_token?: string;
-    expires_in?: number | string;
-  } | null = null;
-
-  try {
-    parsed = JSON.parse(text);
-  } catch {
-    const params = new URLSearchParams(text);
-    parsed = {
-      access_token: params.get("access_token") ?? undefined,
-      refresh_token: params.get("refresh_token") ?? undefined,
-      expires_in: params.get("expires_in") ?? undefined,
-    };
-  }
-
-  const accessToken = parsed?.access_token ?? null;
-  const nextRefreshToken = parsed?.refresh_token ?? null;
-  const expiresIn = Number(parsed?.expires_in ?? 0);
+  const parsed = parseRefreshPayload(text);
+  const accessToken = parsed.access_token ?? null;
+  const nextRefreshToken = parsed.refresh_token ?? null;
+  const expiresIn = Number(parsed.expires_in ?? 0);
 
   if (
     !accessToken ||
@@ -58,78 +84,45 @@ const refresh = async (refreshToken: string) => {
     throw new Error(`Invalid token response: ${text}`);
   }
 
-  const expiresAt = Math.floor(Date.now() / 1000) + Number(expiresIn);
-
-  console.log(accessToken);
-  console.log(nextRefreshToken);
-  console.log(expiresAt);
-
-  return { accessToken, refreshToken: nextRefreshToken, expiresAt };
+  return {
+    accessToken,
+    refreshToken: nextRefreshToken,
+    expiresAt: Math.floor(Date.now() / 1000) + expiresIn,
+  };
 };
 
 export default async function handler(_req: any, res: any) {
   try {
-    const configPath = `${process.cwd()}/wakatime.json`;
+    const now = Math.floor(Date.now() / 1000);
+    const envAccessToken = process.env.WAKATIME_ACCESS_TOKEN ?? null;
     const envRefreshToken = process.env.WAKATIME_REFRESH_TOKEN ?? null;
-    const envExpiresAtRaw = process.env.WAKATIME_EXPIRES_AT;
+    const envExpiresAt = toEpochSeconds(process.env.WAKATIME_EXPIRES_AT);
 
-    let envExpiresAt: number | null = null;
-    if (envExpiresAtRaw) {
-      const parsedExpiresAt = Number(envExpiresAtRaw);
-      if (Number.isFinite(parsedExpiresAt)) {
-        envExpiresAt =
-          parsedExpiresAt > 1_000_000_000_000
-            ? Math.floor(parsedExpiresAt / 1000)
-            : parsedExpiresAt;
-      }
+    let fileConfig: WakaConfig = {};
+    if (existsSync(CONFIG_PATH)) {
+      fileConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as WakaConfig;
     }
 
-    if (envRefreshToken || envExpiresAt !== null) {
-      let currentConfig: {
-        access_token?: string;
-        refresh_token?: string;
-        expires_at?: number;
-      } = {};
-
-      if (existsSync(configPath)) {
-        currentConfig = JSON.parse(readFileSync(configPath, "utf8"));
-      }
-
-      const nextConfig = {
-        ...currentConfig,
+    if (existsSync(CONFIG_PATH) && (envRefreshToken || envExpiresAt !== null)) {
+      const nextConfig: WakaConfig = {
+        ...fileConfig,
         ...(envRefreshToken ? { refresh_token: envRefreshToken } : {}),
         ...(envExpiresAt !== null ? { expires_at: envExpiresAt } : {}),
       };
 
-      writeFileSync(
-        `${process.cwd()}/wakatime.json`,
-        JSON.stringify(nextConfig, null, 2),
-      );
+      if (JSON.stringify(nextConfig) !== JSON.stringify(fileConfig)) {
+        writeFileSync(CONFIG_PATH, JSON.stringify(nextConfig, null, 2));
+        fileConfig = nextConfig;
+      }
     }
 
-    const hasConfigFile = existsSync(configPath);
+    const tokenState: TokenState = {
+      accessToken: fileConfig.access_token ?? envAccessToken,
+      refreshToken: fileConfig.refresh_token ?? envRefreshToken,
+      expiresAt: toEpochSeconds(fileConfig.expires_at) ?? envExpiresAt,
+    };
 
-    let accessTokenFromFile: string | null = null;
-    let refreshTokenToUse: string | null = null;
-    let expiresAtFromFile: number | null = null;
-
-    if (hasConfigFile) {
-      const config = JSON.parse(readFileSync(configPath, "utf8")) as {
-        access_token?: string;
-        refresh_token: string;
-        expires_at: number;
-      };
-
-      accessTokenFromFile = config.access_token ?? null;
-      refreshTokenToUse = config.refresh_token;
-      expiresAtFromFile = config.expires_at;
-    } else {
-      accessTokenFromFile = process.env.WAKATIME_ACCESS_TOKEN ?? null;
-      refreshTokenToUse = envRefreshToken;
-      expiresAtFromFile = envExpiresAt;
-    }
-
-    if (!refreshTokenToUse && !accessTokenFromFile) {
+    if (!tokenState.accessToken && !tokenState.refreshToken) {
       res.status(500).json({
         message:
           "No token available (wakatime.json missing and env tokens not set)",
@@ -138,21 +131,20 @@ export default async function handler(_req: any, res: any) {
     }
 
     const shouldRefresh =
-      expiresAtFromFile !== null &&
-      expiresAtFromFile - Math.floor(Date.now() / 1000) <= 10 * 60;
+      tokenState.expiresAt !== null &&
+      tokenState.expiresAt - now <= REFRESH_WINDOW_SECONDS;
 
-    const { accessToken, refreshToken, expiresAt } =
-      shouldRefresh && refreshTokenToUse
-        ? await refresh(refreshTokenToUse)
-        : {
-            accessToken: accessTokenFromFile,
-            refreshToken: refreshTokenToUse,
-            expiresAt: expiresAtFromFile,
-          };
+    const result =
+      shouldRefresh && tokenState.refreshToken
+        ? await refresh(tokenState.refreshToken)
+        : tokenState;
 
-    res
-      .status(200)
-      .json({ message: "ok", accessToken, refreshToken, expiresAt });
+    res.status(200).json({
+      message: "ok",
+      accessToken: result.accessToken,
+      refreshToken: result.refreshToken,
+      expiresAt: result.expiresAt,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: "Failed to get access token" });
