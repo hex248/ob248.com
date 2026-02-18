@@ -98,12 +98,24 @@ export default async function handler(_req: any, res: any) {
     const envRefreshToken = process.env.WAKATIME_REFRESH_TOKEN ?? null;
     const envExpiresAt = toEpochSeconds(process.env.WAKATIME_EXPIRES_AT);
 
+    const diagnostics: Record<string, unknown> = {
+      hasEnvAccessToken: Boolean(envAccessToken),
+      hasEnvRefreshToken: Boolean(envRefreshToken),
+      envExpiresAt,
+      now,
+    };
+
     let fileConfig: WakaConfig = {};
-    if (existsSync(CONFIG_PATH)) {
+    const hasConfigFile = existsSync(CONFIG_PATH);
+    if (hasConfigFile) {
       fileConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as WakaConfig;
     }
+    diagnostics.hasConfigFile = hasConfigFile;
+    diagnostics.fileHasAccessToken = Boolean(fileConfig.access_token);
+    diagnostics.fileHasRefreshToken = Boolean(fileConfig.refresh_token);
+    diagnostics.fileExpiresAt = toEpochSeconds(fileConfig.expires_at);
 
-    if (existsSync(CONFIG_PATH) && (envRefreshToken || envExpiresAt !== null)) {
+    if (hasConfigFile && (envRefreshToken || envExpiresAt !== null)) {
       const nextConfig: WakaConfig = {
         ...fileConfig,
         ...(envRefreshToken ? { refresh_token: envRefreshToken } : {}),
@@ -121,26 +133,56 @@ export default async function handler(_req: any, res: any) {
       refreshToken: fileConfig.refresh_token ?? envRefreshToken,
       expiresAt: toEpochSeconds(fileConfig.expires_at) ?? envExpiresAt,
     };
+    diagnostics.resolvedHasAccessToken = Boolean(tokenState.accessToken);
+    diagnostics.resolvedHasRefreshToken = Boolean(tokenState.refreshToken);
+    diagnostics.resolvedExpiresAt = tokenState.expiresAt;
 
     if (!tokenState.accessToken && !tokenState.refreshToken) {
       res.status(500).json({
-        message:
-          "No token available (wakatime.json missing and env tokens not set)",
+        message: "No token available",
+        diagnostics,
       });
       return;
     }
 
-    const shouldRefresh =
+    const shouldRefreshByExpiry =
       tokenState.expiresAt !== null &&
       tokenState.expiresAt - now <= REFRESH_WINDOW_SECONDS;
+    const shouldRefreshMissingAccess =
+      !tokenState.accessToken && Boolean(tokenState.refreshToken);
+    const shouldRefresh =
+      Boolean(tokenState.refreshToken) &&
+      (shouldRefreshByExpiry || shouldRefreshMissingAccess);
 
-    const result =
-      shouldRefresh && tokenState.refreshToken
-        ? await refresh(tokenState.refreshToken)
-        : tokenState;
+    diagnostics.shouldRefreshByExpiry = shouldRefreshByExpiry;
+    diagnostics.shouldRefreshMissingAccess = shouldRefreshMissingAccess;
+    diagnostics.shouldRefresh = shouldRefresh;
+
+    let result = tokenState;
+    if (shouldRefresh && tokenState.refreshToken) {
+      try {
+        result = await refresh(tokenState.refreshToken);
+        diagnostics.didRefresh = true;
+      } catch (refreshError) {
+        res.status(500).json({
+          message: "Failed to refresh access token",
+          error:
+            refreshError instanceof Error
+              ? refreshError.message
+              : String(refreshError),
+          diagnostics,
+        });
+        return;
+      }
+    } else {
+      diagnostics.didRefresh = false;
+    }
 
     if (!result.accessToken) {
-      res.status(500).json({ message: "Missing access token" });
+      res.status(500).json({
+        message: "Missing access token",
+        diagnostics,
+      });
       return;
     }
 
@@ -171,14 +213,22 @@ export default async function handler(_req: any, res: any) {
     const heartbeatText = await heartbeatResponse.text();
     const statsText = await statsResponse.text();
     if (!heartbeatResponse.ok) {
-      throw new Error(
-        `Failed to get heartbeats (status ${heartbeatResponse.status}): ${heartbeatText}`,
-      );
+      res.status(500).json({
+        message: "Failed to get heartbeats",
+        status: heartbeatResponse.status,
+        body: heartbeatText,
+        diagnostics,
+      });
+      return;
     }
     if (!statsResponse.ok) {
-      throw new Error(
-        `Failed to get stats (status ${statsResponse.status}): ${statsText}`,
-      );
+      res.status(500).json({
+        message: "Failed to get stats",
+        status: statsResponse.status,
+        body: statsText,
+        diagnostics,
+      });
+      return;
     }
 
     const heartbeatJson = JSON.parse(heartbeatText) as { data?: unknown };
@@ -190,6 +240,9 @@ export default async function handler(_req: any, res: any) {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to get data" });
+    res.status(500).json({
+      message: "Failed to get data",
+      error: error instanceof Error ? error.message : String(error),
+    });
   }
 }
