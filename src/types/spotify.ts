@@ -19,6 +19,12 @@ export type CurrentlyPlaying = {
   playlistImage?: string;
   playlistAuthor?: string;
   playlistDescription?: string;
+  colours?: ColourFromImageResponse | null;
+};
+
+export type ColourFromImageResponse = {
+  hex: string;
+  oppositeHex: string;
 };
 
 export type Device = {

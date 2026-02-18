@@ -1,4 +1,10 @@
 import lodash from "lodash";
+import { Vibrant } from "node-vibrant/node";
+
+type ColourFromImageResponse = {
+  hex: string;
+  oppositeHex: string;
+};
 
 const { pick } = lodash;
 
@@ -55,6 +61,15 @@ const getCurrentlyPlaying = async () => {
   }
 
   const json = await response.json();
+  let colours: ColourFromImageResponse | null = null;
+
+  if (json.currently_playing_type === "track") {
+    const albumArtUrl = json.item?.album?.images?.[0]?.url;
+    if (albumArtUrl) {
+      colours = await getColoursFromImagePath(albumArtUrl);
+    }
+  }
+
   let isPlaylist = false;
   let playlistName = "";
   let playlistImage = "";
@@ -108,8 +123,64 @@ const getCurrentlyPlaying = async () => {
   currentlyPlaying.playlistImage = playlistImage;
   currentlyPlaying.playlistAuthor = playlistAuthor;
   currentlyPlaying.playlistDescription = playlistDescription;
+  currentlyPlaying.colours = colours;
 
   return currentlyPlaying;
+};
+
+const getColoursFromImagePath = async (
+  path: string,
+): Promise<ColourFromImageResponse | null> => {
+  try {
+    const palette = await Vibrant.from(path).getPalette();
+    const vibrantSwatch = palette.Vibrant;
+    const mutedSwatch = palette.Muted;
+    const vibrantPopulation = vibrantSwatch?.population ?? 0;
+    const mutedPopulation = mutedSwatch?.population ?? 0;
+    const vibrantHsl = vibrantSwatch?.hsl;
+    const mutedHsl = mutedSwatch?.hsl;
+
+    let bg: [number, number, number] = [0, 0, 0];
+    if (vibrantPopulation > mutedPopulation + 600 && vibrantHsl) {
+      bg = vibrantHsl;
+    } else if (mutedPopulation > 0 && mutedHsl) {
+      bg = mutedHsl;
+    }
+
+    const fg = contrast(bg[0], bg[1], bg[2] * 100);
+
+    const hex = convertToHexFromHSL(bg[0] * 360, bg[1] * 100, bg[2] * 100);
+    const oppositeHex = convertToHexFromHSL(
+      fg[0] * 360,
+      fg[1] * 100,
+      fg[2] * 100,
+    );
+
+    return {
+      hex,
+      oppositeHex,
+    };
+  } catch {
+    return null;
+  }
+};
+
+const convertToHexFromHSL = (h: number, s: number, l: number) => {
+  l /= 100;
+  const a = (s * Math.min(l, 1 - l)) / 100;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, "0");
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+};
+
+const contrast = (h: number, s: number, l: number) => {
+  const oppositeLightness = l < 50 ? l + 50 : l - 50;
+  return [h, s, oppositeLightness / 100] as const;
 };
 
 export default async function handler(_req: any, res: any) {

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type {
+  ColourFromImageResponse,
   CurrentlyPlaying,
   EpisodeObject,
   TrackObject,
@@ -10,11 +11,6 @@ function isEpisodeObject(
 ): item is EpisodeObject {
   return item != null && typeof item === "object" && "show" in item;
 }
-
-type ColourFromImageResponse = {
-  hex: string;
-  oppositeHex: string;
-};
 
 const formatName = (name: string) => {
   if (!name) return name;
@@ -38,7 +34,6 @@ const formatName = (name: string) => {
 
 export function SpotifyPlayingSmall() {
   const [track, setTrack] = useState<CurrentlyPlaying | null>(null);
-  const [colours, setColours] = useState<ColourFromImageResponse | null>(null);
   const hasFetchedOnce = useRef(false);
 
   // get track data
@@ -53,44 +48,7 @@ export function SpotifyPlayingSmall() {
     return () => clearInterval(interval);
   }, []);
 
-  const albumArtUrl =
-    track?.item && !isEpisodeObject(track.item)
-      ? track.item.album.images[0]?.url
-      : undefined;
-
-  useEffect(() => {
-    if (!albumArtUrl) {
-      setColours(null);
-      return;
-    }
-
-    let cancelled = false;
-
-    const fetchColours = async () => {
-      const res = await fetch("/api/colourFromImage", {
-        method: "POST",
-        headers: {
-          "Content-Type": "text/plain",
-        },
-        body: albumArtUrl,
-      });
-
-      if (!res.ok) {
-        return;
-      }
-
-      const data = (await res.json()) as ColourFromImageResponse;
-      if (!cancelled) {
-        setColours(data);
-      }
-    };
-
-    fetchColours();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [albumArtUrl]);
+  const colours: ColourFromImageResponse | null = track?.colours ?? null;
 
   if (!hasFetchedOnce.current) return null;
 
