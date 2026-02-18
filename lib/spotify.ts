@@ -250,27 +250,8 @@ export const getCurrentlyPlaying = async (): Promise<CurrentlyPlaying> => {
     playlistDescription = playlistJson.description;
   }
 
-  let artistIDs = json.item?.artists?.map((a: Artist) => a.id);
-
-  let artistIDsString = artistIDs?.join(",");
-
   let artistImages: string[] = [];
 
-  //! ratelimited
-  // let res = await fetch(
-  //     "https://api.spotify.com/v1/artists?ids=" + artistIDsString,
-  //     {
-  //         headers: { Authorization: `Bearer ${accessToken}` },
-  //     }
-  // );
-
-  // if (res.status === 200) {
-  //     let artists = await res.json();
-
-  //     artistImages = artists.artists.map((a: Artist) => a.images[0].url);
-  // } else {
-  //     // console.log(res);
-  // }
 
   const currentPlayingKeys: string[] = [
     "id",
