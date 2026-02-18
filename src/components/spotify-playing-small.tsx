@@ -1,4 +1,3 @@
-import { Music } from "@nsmr/pixelart-react";
 import { useEffect, useRef, useState } from "react";
 import type {
   CurrentlyPlaying,
@@ -93,47 +92,13 @@ export function SpotifyPlayingSmall() {
     };
   }, [albumArtUrl]);
 
-  if (!hasFetchedOnce.current) {
-    return (
-      <div
-        className="flex items-center gap-2 px-1 py-1 pr-2"
-        style={{
-          backgroundColor: "#2a2621",
-          color: "#df7126",
-          border: "1px solid #df7126",
-        }}
-      >
-        <div className="w-12 h-12 flex items-center justify-center">
-          <Music size={36} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">Loading...</span>
-        </div>
-      </div>
-    );
-  }
+  if (!hasFetchedOnce.current) return null;
 
   if (
     hasFetchedOnce.current &&
     (!track || !track.item || isEpisodeObject(track.item))
   ) {
-    return (
-      <div
-        className="flex items-center gap-2 px-1 py-1 pr-2"
-        style={{
-          backgroundColor: "#2a2621",
-          color: "#df7126",
-          border: "1px solid #df7126",
-        }}
-      >
-        <div className="w-12 h-12 flex items-center justify-center">
-          <Music size={36} />
-        </div>
-        <div className="flex flex-col">
-          <span className="text-sm font-semibold">Nothing playing</span>
-        </div>
-      </div>
-    );
+    return null;
   }
   const item = track?.item as TrackObject;
   if (item) {
