@@ -139,14 +139,57 @@ export default async function handler(_req: any, res: any) {
         ? await refresh(tokenState.refreshToken)
         : tokenState;
 
+    if (!result.accessToken) {
+      res.status(500).json({ message: "Missing access token" });
+      return;
+    }
+
+    const dateQuery = _req?.query?.date;
+    const date =
+      typeof dateQuery === "string" && dateQuery.trim().length > 0
+        ? dateQuery
+        : new Date().toISOString().slice(0, 10);
+
+    const heartbeatUrl = new URL(
+      "https://api.wakatime.com/api/v1/users/current/heartbeats",
+    );
+    heartbeatUrl.searchParams.set("date", date);
+
+    const statsUrl = new URL(
+      "https://api.wakatime.com/api/v1/users/current/stats/last_7_days",
+    );
+
+    const headers = {
+      Authorization: `Bearer ${result.accessToken}`,
+    };
+
+    const [heartbeatResponse, statsResponse] = await Promise.all([
+      fetch(heartbeatUrl, { headers }),
+      fetch(statsUrl, { headers }),
+    ]);
+
+    const heartbeatText = await heartbeatResponse.text();
+    const statsText = await statsResponse.text();
+    if (!heartbeatResponse.ok) {
+      throw new Error(
+        `Failed to get heartbeats (status ${heartbeatResponse.status}): ${heartbeatText}`,
+      );
+    }
+    if (!statsResponse.ok) {
+      throw new Error(
+        `Failed to get stats (status ${statsResponse.status}): ${statsText}`,
+      );
+    }
+
+    const heartbeatJson = JSON.parse(heartbeatText) as { data?: unknown };
+    const statsJson = JSON.parse(statsText) as { data?: unknown };
+
     res.status(200).json({
-      message: "ok",
-      accessToken: result.accessToken,
-      refreshToken: result.refreshToken,
-      expiresAt: result.expiresAt,
+      heartbeat: heartbeatJson.data ?? heartbeatJson,
+      stats: statsJson.data ?? statsJson,
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to get access token" });
+    res.status(500).json({ message: "Failed to get data" });
   }
 }
