@@ -6,6 +6,7 @@
   ],
   "compilerOptions": {
     "baseUrl": ".",
+    "module": "ESNext",
     "allowImportingTsExtensions": true,
     "paths": {
       "@/*": ["./src/*"]

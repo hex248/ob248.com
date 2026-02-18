@@ -113,7 +113,10 @@ export function SpotifyPlayingSmall() {
     );
   }
 
-  if (hasFetchedOnce.current && (!track || isEpisodeObject(track.item))) {
+  if (
+    hasFetchedOnce.current &&
+    (!track || !track.item || isEpisodeObject(track.item))
+  ) {
     return (
       <div
         className="flex items-center gap-2 px-1 py-1 pr-2"
@@ -157,4 +160,6 @@ export function SpotifyPlayingSmall() {
       </a>
     );
   }
+
+  return null;
 }
