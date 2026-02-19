@@ -1,7 +1,7 @@
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { neon } from "@neondatabase/serverless";
 
-const CONFIG_PATH = `${process.cwd()}/wakatime.json`;
 const REFRESH_WINDOW_SECONDS = 10 * 60;
+const TOKEN_PROVIDER = "wakatime";
 
 type WakaConfig = {
   access_token?: string;
@@ -13,6 +13,79 @@ type TokenState = {
   accessToken: string | null;
   refreshToken: string | null;
   expiresAt: number | null;
+};
+
+type DatabaseTokenRow = {
+  access_token: string | null;
+  refresh_token: string | null;
+  expires_at: number | string | null;
+};
+
+const getSql = () => {
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    return null;
+  }
+
+  return neon(connectionString);
+};
+
+const ensureTokenTable = async (sql: ReturnType<typeof neon>) => {
+  await sql`
+    CREATE TABLE IF NOT EXISTS wakatime_tokens (
+      provider TEXT PRIMARY KEY,
+      access_token TEXT,
+      refresh_token TEXT,
+      expires_at BIGINT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )
+  `;
+};
+
+const readTokenFromDatabase = async (
+  sql: ReturnType<typeof neon>,
+): Promise<TokenState> => {
+  const rows = (await sql`
+    SELECT access_token, refresh_token, expires_at
+    FROM wakatime_tokens
+    WHERE provider = ${TOKEN_PROVIDER}
+    LIMIT 1
+  `) as DatabaseTokenRow[];
+
+  const row = rows[0];
+  return {
+    accessToken: row?.access_token ?? null,
+    refreshToken: row?.refresh_token ?? null,
+    expiresAt: toEpochSeconds(row?.expires_at ?? null),
+  };
+};
+
+const writeTokenToDatabase = async (
+  sql: ReturnType<typeof neon>,
+  token: TokenState,
+) => {
+  await sql`
+    INSERT INTO wakatime_tokens (
+      provider,
+      access_token,
+      refresh_token,
+      expires_at,
+      updated_at
+    )
+    VALUES (
+      ${TOKEN_PROVIDER},
+      ${token.accessToken},
+      ${token.refreshToken},
+      ${token.expiresAt},
+      NOW()
+    )
+    ON CONFLICT (provider) DO UPDATE SET
+      access_token = EXCLUDED.access_token,
+      refresh_token = EXCLUDED.refresh_token,
+      expires_at = EXCLUDED.expires_at,
+      updated_at = NOW()
+  `;
 };
 
 const parseRefreshPayload = (
@@ -97,42 +170,48 @@ export default async function handler(_req: any, res: any) {
     const envAccessToken = process.env.WAKATIME_ACCESS_TOKEN ?? null;
     const envRefreshToken = process.env.WAKATIME_REFRESH_TOKEN ?? null;
     const envExpiresAt = toEpochSeconds(process.env.WAKATIME_EXPIRES_AT);
+    const sql = getSql();
 
     const diagnostics: Record<string, unknown> = {
+      hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
       hasEnvAccessToken: Boolean(envAccessToken),
       hasEnvRefreshToken: Boolean(envRefreshToken),
       envExpiresAt,
       now,
     };
 
-    let fileConfig: WakaConfig = {};
-    const hasConfigFile = existsSync(CONFIG_PATH);
-    if (hasConfigFile) {
-      fileConfig = JSON.parse(readFileSync(CONFIG_PATH, "utf8")) as WakaConfig;
-    }
-    diagnostics.hasConfigFile = hasConfigFile;
-    diagnostics.fileHasAccessToken = Boolean(fileConfig.access_token);
-    diagnostics.fileHasRefreshToken = Boolean(fileConfig.refresh_token);
-    diagnostics.fileExpiresAt = toEpochSeconds(fileConfig.expires_at);
+    let dbTokenState: TokenState = {
+      accessToken: null,
+      refreshToken: null,
+      expiresAt: null,
+    };
 
-    if (hasConfigFile && (envRefreshToken || envExpiresAt !== null)) {
-      const nextConfig: WakaConfig = {
-        ...fileConfig,
-        ...(envRefreshToken ? { refresh_token: envRefreshToken } : {}),
-        ...(envExpiresAt !== null ? { expires_at: envExpiresAt } : {}),
-      };
-
-      if (JSON.stringify(nextConfig) !== JSON.stringify(fileConfig)) {
-        writeFileSync(CONFIG_PATH, JSON.stringify(nextConfig, null, 2));
-        fileConfig = nextConfig;
-      }
+    if (sql) {
+      await ensureTokenTable(sql);
+      dbTokenState = await readTokenFromDatabase(sql);
     }
+    diagnostics.dbHasAccessToken = Boolean(dbTokenState.accessToken);
+    diagnostics.dbHasRefreshToken = Boolean(dbTokenState.refreshToken);
+    diagnostics.dbExpiresAt = dbTokenState.expiresAt;
 
     const tokenState: TokenState = {
-      accessToken: fileConfig.access_token ?? envAccessToken,
-      refreshToken: fileConfig.refresh_token ?? envRefreshToken,
-      expiresAt: toEpochSeconds(fileConfig.expires_at) ?? envExpiresAt,
+      accessToken: dbTokenState.accessToken ?? envAccessToken,
+      refreshToken: dbTokenState.refreshToken ?? envRefreshToken,
+      expiresAt: dbTokenState.expiresAt ?? envExpiresAt,
     };
+
+    if (
+      sql &&
+      !dbTokenState.refreshToken &&
+      tokenState.refreshToken &&
+      tokenState.expiresAt !== null
+    ) {
+      await writeTokenToDatabase(sql, tokenState);
+      diagnostics.seededDatabaseFromEnv = true;
+    } else {
+      diagnostics.seededDatabaseFromEnv = false;
+    }
+
     diagnostics.resolvedHasAccessToken = Boolean(tokenState.accessToken);
     diagnostics.resolvedHasRefreshToken = Boolean(tokenState.refreshToken);
     diagnostics.resolvedExpiresAt = tokenState.expiresAt;
@@ -162,6 +241,12 @@ export default async function handler(_req: any, res: any) {
     if (shouldRefresh && tokenState.refreshToken) {
       try {
         result = await refresh(tokenState.refreshToken);
+        if (sql) {
+          await writeTokenToDatabase(sql, result);
+          diagnostics.persistedRefreshToDatabase = true;
+        } else {
+          diagnostics.persistedRefreshToDatabase = false;
+        }
         diagnostics.didRefresh = true;
       } catch (refreshError) {
         res.status(500).json({
@@ -176,6 +261,7 @@ export default async function handler(_req: any, res: any) {
       }
     } else {
       diagnostics.didRefresh = false;
+      diagnostics.persistedRefreshToDatabase = false;
     }
 
     if (!result.accessToken) {
