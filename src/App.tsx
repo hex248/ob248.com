@@ -443,7 +443,7 @@ function Home() {
 
   return (
     <div className="min-h-dvh flex flex-col items-center gap-2 text-2xl px-6 py-10">
-      <div className="flex flex-col items-center gap-4 mb-4">
+      <div className="flex flex-col items-center gap-4">
         {asciiArt ? (
           <pre className="text-[#000000] dark:text-[#ffffff] leading-1.75 tracking-[-1.75px]">
             <code className="commitmono text-[11px]">{asciiArt}</code>
@@ -478,7 +478,7 @@ function Home() {
             <Notes className="size-6" /> CV
           </a>
         </div>
-        <div className="text-base text-fg flex flex-col items-center gap-2">
+        <div className="text-base text-fg flex flex-col items-center gap-4 mb-2">
           <span>
             Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
           </span>
