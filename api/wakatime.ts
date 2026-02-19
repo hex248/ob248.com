@@ -3,6 +3,8 @@ import { neon } from "@neondatabase/serverless";
 const REFRESH_WINDOW_SECONDS = 10 * 60;
 const TOKEN_PROVIDER = "wakatime";
 
+type SqlClient = ReturnType<typeof neon<false, false>>;
+
 type WakaConfig = {
   access_token?: string;
   refresh_token?: string;
@@ -30,7 +32,7 @@ const getSql = () => {
   return neon(connectionString);
 };
 
-const ensureTokenTable = async (sql: ReturnType<typeof neon>) => {
+const ensureTokenTable = async (sql: SqlClient) => {
   await sql`
     CREATE TABLE IF NOT EXISTS wakatime_tokens (
       provider TEXT PRIMARY KEY,
@@ -43,9 +45,7 @@ const ensureTokenTable = async (sql: ReturnType<typeof neon>) => {
   `;
 };
 
-const readTokenFromDatabase = async (
-  sql: ReturnType<typeof neon>,
-): Promise<TokenState> => {
+const readTokenFromDatabase = async (sql: SqlClient): Promise<TokenState> => {
   const rows = (await sql`
     SELECT access_token, refresh_token, expires_at
     FROM wakatime_tokens
@@ -61,10 +61,7 @@ const readTokenFromDatabase = async (
   };
 };
 
-const writeTokenToDatabase = async (
-  sql: ReturnType<typeof neon>,
-  token: TokenState,
-) => {
+const writeTokenToDatabase = async (sql: SqlClient, token: TokenState) => {
   await sql`
     INSERT INTO wakatime_tokens (
       provider,
@@ -106,6 +103,10 @@ const parseRefreshPayload = (
 const toEpochSeconds = (
   value: number | string | null | undefined,
 ): number | null => {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
   const parsed = Number(value);
   if (!Number.isFinite(parsed)) {
     return null;
@@ -161,6 +162,38 @@ const refresh = async (refreshToken: string): Promise<TokenState> => {
     accessToken,
     refreshToken: nextRefreshToken,
     expiresAt: Math.floor(Date.now() / 1000) + expiresIn,
+  };
+};
+
+const fetchWakatimeData = async (accessToken: string, date: string) => {
+  const heartbeatUrl = new URL(
+    "https://api.wakatime.com/api/v1/users/current/heartbeats",
+  );
+  heartbeatUrl.searchParams.set("date", date);
+
+  const statsUrl = new URL(
+    "https://api.wakatime.com/api/v1/users/current/stats/last_7_days",
+  );
+
+  const headers = {
+    Authorization: `Bearer ${accessToken}`,
+  };
+
+  const [heartbeatResponse, statsResponse] = await Promise.all([
+    fetch(heartbeatUrl, { headers }),
+    fetch(statsUrl, { headers }),
+  ]);
+
+  const [heartbeatText, statsText] = await Promise.all([
+    heartbeatResponse.text(),
+    statsResponse.text(),
+  ]);
+
+  return {
+    heartbeatResponse,
+    statsResponse,
+    heartbeatText,
+    statsText,
   };
 };
 
@@ -224,47 +257,73 @@ export default async function handler(_req: any, res: any) {
       return;
     }
 
-    const shouldRefreshByExpiry =
-      tokenState.expiresAt !== null &&
-      tokenState.expiresAt - now <= REFRESH_WINDOW_SECONDS;
-    const shouldRefreshMissingAccess =
-      !tokenState.accessToken && Boolean(tokenState.refreshToken);
-    const shouldRefresh =
-      Boolean(tokenState.refreshToken) &&
-      (shouldRefreshByExpiry || shouldRefreshMissingAccess);
-
-    diagnostics.shouldRefreshByExpiry = shouldRefreshByExpiry;
-    diagnostics.shouldRefreshMissingAccess = shouldRefreshMissingAccess;
-    diagnostics.shouldRefresh = shouldRefresh;
+    const dateQuery = _req?.query?.date;
+    const date =
+      typeof dateQuery === "string" && dateQuery.trim().length > 0
+        ? dateQuery
+        : new Date().toISOString().slice(0, 10);
 
     let result = tokenState;
-    if (shouldRefresh && tokenState.refreshToken) {
-      try {
-        result = await refresh(tokenState.refreshToken);
-        if (sql) {
-          await writeTokenToDatabase(sql, result);
-          diagnostics.persistedRefreshToDatabase = true;
-        } else {
-          diagnostics.persistedRefreshToDatabase = false;
+    let apiResult: Awaited<ReturnType<typeof fetchWakatimeData>> | null = null;
+
+    if (result.accessToken) {
+      apiResult = await fetchWakatimeData(result.accessToken, date);
+      diagnostics.firstAttemptHeartbeatStatus =
+        apiResult.heartbeatResponse.status;
+      diagnostics.firstAttemptStatsStatus = apiResult.statsResponse.status;
+      diagnostics.firstAttemptSucceeded =
+        apiResult.heartbeatResponse.ok && apiResult.statsResponse.ok;
+    } else {
+      diagnostics.firstAttemptSkipped = true;
+      diagnostics.firstAttemptSucceeded = false;
+    }
+
+    if (
+      !apiResult ||
+      !apiResult.heartbeatResponse.ok ||
+      !apiResult.statsResponse.ok
+    ) {
+      if (!result.refreshToken) {
+        diagnostics.didRefresh = false;
+        diagnostics.persistedRefreshToDatabase = false;
+      } else {
+        try {
+          result = await refresh(result.refreshToken);
+          diagnostics.didRefresh = true;
+          if (sql) {
+            await writeTokenToDatabase(sql, result);
+            diagnostics.persistedRefreshToDatabase = true;
+          } else {
+            diagnostics.persistedRefreshToDatabase = false;
+          }
+
+          apiResult = await fetchWakatimeData(
+            result.accessToken as string,
+            date,
+          );
+          diagnostics.secondAttemptHeartbeatStatus =
+            apiResult.heartbeatResponse.status;
+          diagnostics.secondAttemptStatsStatus = apiResult.statsResponse.status;
+          diagnostics.secondAttemptSucceeded =
+            apiResult.heartbeatResponse.ok && apiResult.statsResponse.ok;
+        } catch (refreshError) {
+          res.status(500).json({
+            message: "Failed to refresh access token",
+            error:
+              refreshError instanceof Error
+                ? refreshError.message
+                : String(refreshError),
+            diagnostics,
+          });
+          return;
         }
-        diagnostics.didRefresh = true;
-      } catch (refreshError) {
-        res.status(500).json({
-          message: "Failed to refresh access token",
-          error:
-            refreshError instanceof Error
-              ? refreshError.message
-              : String(refreshError),
-          diagnostics,
-        });
-        return;
       }
     } else {
       diagnostics.didRefresh = false;
       diagnostics.persistedRefreshToDatabase = false;
     }
 
-    if (!result.accessToken) {
+    if (!apiResult) {
       res.status(500).json({
         message: "Missing access token",
         diagnostics,
@@ -272,32 +331,8 @@ export default async function handler(_req: any, res: any) {
       return;
     }
 
-    const dateQuery = _req?.query?.date;
-    const date =
-      typeof dateQuery === "string" && dateQuery.trim().length > 0
-        ? dateQuery
-        : new Date().toISOString().slice(0, 10);
-
-    const heartbeatUrl = new URL(
-      "https://api.wakatime.com/api/v1/users/current/heartbeats",
-    );
-    heartbeatUrl.searchParams.set("date", date);
-
-    const statsUrl = new URL(
-      "https://api.wakatime.com/api/v1/users/current/stats/last_7_days",
-    );
-
-    const headers = {
-      Authorization: `Bearer ${result.accessToken}`,
-    };
-
-    const [heartbeatResponse, statsResponse] = await Promise.all([
-      fetch(heartbeatUrl, { headers }),
-      fetch(statsUrl, { headers }),
-    ]);
-
-    const heartbeatText = await heartbeatResponse.text();
-    const statsText = await statsResponse.text();
+    const { heartbeatResponse, statsResponse, heartbeatText, statsText } =
+      apiResult;
     if (!heartbeatResponse.ok) {
       res.status(500).json({
         message: "Failed to get heartbeats",
