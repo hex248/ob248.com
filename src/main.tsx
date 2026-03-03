@@ -6,14 +6,6 @@ import { ThemeProvider } from "@/components/theme-provider";
 import "./index.css";
 import App from "./App.tsx";
 
-const searchParams = new URLSearchParams(window.location.search);
-if (
-  searchParams.get("format") === "md" &&
-  window.location.pathname !== "/portfolio.md"
-) {
-  window.location.replace("/portfolio.md");
-}
-
 const root = document.getElementById("root");
 const isTextureEnabled = import.meta.env.VITE_TEXTURE !== "0";
 if (!root) throw new Error("Failed to find the root element");
