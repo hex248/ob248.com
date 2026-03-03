@@ -15,9 +15,31 @@
       "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
       "has": [
         {
+          "type": "query",
+          "key": "format",
+          "value": "md"
+        }
+      ],
+      "destination": "/portfolio.md"
+    },
+    {
+      "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
+      "has": [
+        {
           "type": "header",
           "key": "user-agent",
-          "value": ".*(GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Google-Extended|Bytespider|CCBot|Amazonbot).*"
+          "value": ".*(GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|Claude|Anthropic|anthropic-ai|PerplexityBot|Google-Extended|Bytespider|CCBot|Amazonbot).*"
+        }
+      ],
+      "destination": "/portfolio.md"
+    },
+    {
+      "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
+      "missing": [
+        {
+          "type": "header",
+          "key": "accept",
+          "value": ".*text/html.*"
         }
       ],
       "destination": "/portfolio.md"
