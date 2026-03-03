@@ -446,7 +446,7 @@ function Home() {
       <div className="flex flex-col items-center gap-4">
         {asciiArt ? (
           <pre className="text-[#000000] dark:text-[#ffffff] leading-1.75 tracking-[-1.75px]">
-            <code className="commitmono text-[11px]">{asciiArt}</code>
+            <span className="commitmono text-[11px]">{asciiArt}</span>
           </pre>
         ) : null}
         <h1 className="text-center picnic text-8xl text-balance">
