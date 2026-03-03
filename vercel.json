@@ -1,5 +1,37 @@
 {
+  "headers": [
+    {
+      "source": "/portfolio.md",
+      "headers": [
+        {
+          "key": "Content-Type",
+          "value": "text/markdown; charset=utf-8"
+        }
+      ]
+    }
+  ],
   "rewrites": [
+    {
+      "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": ".*(GPTBot|ChatGPT-User|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Google-Extended|Bytespider|CCBot|Amazonbot).*"
+        }
+      ],
+      "destination": "/portfolio.md"
+    },
+    {
+      "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
+      "missing": [
+        {
+          "type": "header",
+          "key": "sec-fetch-mode"
+        }
+      ],
+      "destination": "/portfolio.md"
+    },
     {
       "source": "/((?!api|@vite|@react-refresh|src|node_modules|.*\\..*).*)",
       "destination": "/index.html"
