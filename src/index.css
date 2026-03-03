@@ -189,3 +189,9 @@ body {
 .pointer {
   cursor: var(--pointer);
 }
+
+code {
+  background-color: var(--background);
+  padding: 0.1rem 0.15rem;
+  border: 1px solid var(--border);
+}

@@ -2,6 +2,7 @@ import type { ComponentType } from "react";
 import { FactorEProject, metadata as factorEMetadata } from "./factor-e";
 import { FlackieProject, metadata as flackieMetadata } from "./flackie";
 import { FontsProject, metadata as fontsMetadata } from "./fonts";
+import { GitChunkerProject, metadata as gitChunkerMetadata } from "./gitchunker";
 import { GlimpseProject, metadata as glimpseMetadata } from "./glimpse";
 import {
   GoodMorningProject,
@@ -47,6 +48,10 @@ export const projects = {
   [flackieMetadata.slug]: {
     metadata: flackieMetadata,
     Component: FlackieProject,
+  },
+  [gitChunkerMetadata.slug]: {
+    metadata: gitChunkerMetadata,
+    Component: GitChunkerProject,
   },
   [glimpseMetadata.slug]: {
     metadata: glimpseMetadata,
