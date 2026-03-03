@@ -1,9 +1,7 @@
 import { Home } from "@nsmr/pixelart-react";
 import { type ReactNode, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { getProjectPrompt } from "@/lib/constants";
 import type { ProjectMetadata } from "@/projects";
-import { AskAI } from "./ask-ai";
 
 export function ProjectPage({
   metadata,
@@ -64,14 +62,14 @@ export function ProjectPage({
           )}
         </div>
         <div className="ml-auto flex flex-col items-end text-right">
-          <AskAI
+          {/* <AskAI
             name={metadata.title}
             prompt={getProjectPrompt(
               metadata.title,
               metadata.description,
               metadata.slug,
             )}
-          />
+          /> */}
         </div>
       </div>
       {metadata.url ? (
