@@ -23,6 +23,7 @@
     "clsx": "^2.1.1",
     "gray-matter": "^4.0.3",
     "lodash": "^4.17.23",
+    "motion": "^12.35.0",
     "node-vibrant": "^4.0.4",
     "radix-ui": "^1.4.3",
     "react": "^19.2.0",

@@ -23,6 +23,7 @@ import { Wakatime } from "@/components/wakatime";
 import { cn } from "@/lib/utils";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { locationPhotos, locations } from "@/travel";
+import { BlurReveal } from "@/components/blur-reveal";
 
 const asciiFiles = [
   "cat-sleep.txt",
@@ -450,7 +451,13 @@ function Home() {
           </pre>
         ) : null}
         <h1 className="text-center picnic text-8xl text-balance">
-          Oliver Bryan
+          <BlurReveal
+            className="tracking-tight font-medium"
+            speedReveal={0.5}
+            inView
+          >
+            Oliver Bryan
+          </BlurReveal>
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-3 text-base text-fg">
           <a
@@ -475,7 +482,8 @@ function Home() {
             href="/cv.pdf"
             className="inline-flex items-center gap-2 hover:text-accent pointer"
           >
-            <Notes className="size-6" /> CV
+            <Notes className="size-6" />
+            CV
           </a>
         </div>
         <div className="text-base text-fg flex flex-col items-center gap-4 mb-2">
