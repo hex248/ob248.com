@@ -12,6 +12,7 @@ import { MizuProject, metadata as mizuMetadata } from "./mizu";
 import { PrayerbudProject, metadata as prayerbudMetadata } from "./prayerbud";
 import { ShleepProject, metadata as shleepMetadata } from "./shleep";
 import { SprintProject, metadata as sprintMetadata } from "./sprint";
+import { TsosProject, metadata as tsosMetadata } from "./tsos";
 import {
   WatercoolerProject,
   metadata as watercoolerMetadata,
@@ -76,6 +77,10 @@ export const projects = {
   [sprintMetadata.slug]: {
     metadata: sprintMetadata,
     Component: SprintProject,
+  },
+  [tsosMetadata.slug]: {
+    metadata: tsosMetadata,
+    Component: TsosProject,
   },
   [watercoolerMetadata.slug]: {
     metadata: watercoolerMetadata,
