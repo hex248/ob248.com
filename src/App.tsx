@@ -436,7 +436,7 @@ function Home() {
             <span className="commitmono text-[11px]">{asciiArt}</span>
           </pre>
         ) : null}
-        <h1 className="text-center picnic text-8xl text-balance">
+        <h1 className="text-center special-font text-7xl text-balance">
           Oliver Bryan
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-3 text-base text-fg">

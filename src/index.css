@@ -3,6 +3,7 @@
 @import url("https://fonts.ob248.com/ft88-gothique");
 @import url("https://fonts.ob248.com/picnic");
 @import url("https://fonts.ob248.com/basteleur");
+@import url("https://fonts.ob248.com/ugly-dave");
 
 @import "tailwindcss";
 
@@ -177,9 +178,9 @@ body {
   font-weight: 700;
 }
 
-.picnic {
-  font-family: "PicNic", serif;
-  font-weight: 700;
+.special-font {
+  font-family: "Ugly Dave", sans-serif;
+  font-weight: 400;
 }
 
 .cursor {
