@@ -23,20 +23,6 @@ import { Wakatime } from "@/components/wakatime";
 import { cn } from "@/lib/utils";
 import { type ProjectEntry, projectList, projects } from "@/projects";
 import { locationPhotos, locations } from "@/travel";
-import { BlurReveal } from "@/components/blur-reveal";
-
-const asciiFiles = [
-  "cat-sleep.txt",
-  "polar-bear.txt",
-  "polar-bear-sitting.txt",
-  "penguin-surfboard.txt",
-  "cat-shock.txt",
-  "exclamation.txt",
-  "fat-cat-head.txt",
-  "grumpy-dog.txt",
-  "cat-peek.txt",
-  "cat-loaf.txt",
-];
 
 const isBlogEnabled = import.meta.env.VITE_BLOG === "1";
 const homeTabs = [
@@ -62,7 +48,22 @@ export default App;
 function Home() {
   const isDevMode = import.meta.env.VITE_PUBLIC_DEV === "1";
   const navigate = useNavigate();
-  const [asciiArt, setAsciiArt] = useState("");
+  const asciiArt = `
+    ⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣠⣶⠾⠟⠷⠶⣦⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣿⠋⠀⠀⠀⠀⠀⢸⣧⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⣼⠟⠁⠀⠀⠀⠀⠀⠀⣸⡿⠿⠿⠓⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⣿⠁⠀⠀⠀⠀⠀⠀⠀⢠⣿⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣸⡟⠁⠀⠀⠀⠀⠀⠀⠀⠀⢸⣿⣴⠶⠶⠶⠶⠿⠿⠿⠶⠶⠶⠶⠶⣦⣤⣄⣀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣴⠶⠾⢻⡟⠀⠀⢠⡇⠀⠀⢸⣷⠀⠀⠀⢿⡄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢉⣽⠇
+⠀⠀⠀⠀⠀⠀⣀⣤⡶⠟⠋⠉⠀⠀⢠⡿⠁⠀⢠⡿⠁⠀⠀⢸⡟⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⣶⠟⠁⠀
+⠀⠀⢀⣤⡶⠟⠋⠁⠀⠀⠀⠀⠀⠀⣿⠇⠀⠀⣿⠁⠀⠀⢠⣿⠃⠀⠀⠀⢸⡇⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⡶⠟⠋⠀⠀⠀⠀
+⢀⣾⠟⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⠀⠀⠀⣿⡀⠀⣰⡿⠁⠀⠀⠀⠀⢸⡇⠀⠀⠀⢀⣠⣴⠿⠛⠋⠁⠀⠀⠀⠀⠀⠀⠀
+⠸⣧⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢿⡆⠀⠀⠸⣧⢀⣿⠁⠀⠀⠀⠀⠀⢸⣧⣤⣴⠾⠛⠉⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠈⠙⠛⠛⠿⠷⢶⣤⣄⣠⣤⣤⣤⣼⣇⠀⠀⠀⠻⣾⠇⠀⠀⠀⠀⠀⠀⢠⣿⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠉⠁⠀⠈⣿⡆⠀⠀⠀⠀⣠⣶⣿⣷⣤⣀⣀⣸⣿⣇⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣿⣷⣄⣀⣴⠞⠋⠁⠀⠀⠙⠿⠿⠿⠿⠟⠃⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠈⠉⠙⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
+`;
   const [activeHomeTab, setActiveHomeTab] = useState<HomeTab>("work");
   const [activeProjectIndex, setActiveProjectIndex] = useState<number | null>(
     null,
@@ -81,9 +82,6 @@ function Home() {
   const [activePhotoIndexByLocation, setActivePhotoIndexByLocation] = useState<
     Record<number, number | null>
   >({});
-  const [asciiFile] = useState(
-    () => asciiFiles[Math.floor(Math.random() * asciiFiles.length)],
-  );
   const sortedProjects: ProjectEntry[] = [...projectList].sort(
     (a, b) =>
       parseDate(b.metadata.date).getTime() -
@@ -100,18 +98,6 @@ function Home() {
   const visibleBlogPosts = sortedBlogPosts.filter(
     (post) => isDevMode || !post.metadata.hidden,
   );
-
-  useEffect(() => {
-    let isActive = true;
-    fetch(`/ascii/${asciiFile}`)
-      .then((response) => response.text())
-      .then((text) => {
-        if (isActive) setAsciiArt(text);
-      });
-    return () => {
-      isActive = false;
-    };
-  }, [asciiFile]);
 
   useEffect(() => {
     setActiveProjectIndex((prev) => {
@@ -451,13 +437,7 @@ function Home() {
           </pre>
         ) : null}
         <h1 className="text-center picnic text-8xl text-balance">
-          <BlurReveal
-            className="tracking-tight font-medium"
-            speedReveal={0.5}
-            inView
-          >
-            Oliver Bryan
-          </BlurReveal>
+          Oliver Bryan
         </h1>
         <div className="flex flex-wrap items-center justify-center gap-3 text-base text-fg">
           <a
