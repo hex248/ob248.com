@@ -451,11 +451,11 @@ function Home() {
           </a>
           <span className="text-fg/60">/</span>
           <a
-            href="mailto:ob248@proton.me"
+            href="mailto:contact@oliverbryan.com"
             className="inline-flex items-center gap-2 hover:text-accent pointer"
           >
             <Mail className="size-6" />
-            ob248@proton.me
+            contact@oliverbryan.com
           </a>
           <span className="text-fg/60">/</span>
           <a
