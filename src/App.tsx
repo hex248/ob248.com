@@ -470,6 +470,17 @@ function Home() {
           <span>
             Age: <TimeSince date={new Date(2004, 10, 4, 11, 47, 0)} />
           </span>
+          <span className="-mt-3">
+            Current Role: Junior Developer at{" "}
+            <a
+              href="https://www.enroly.com/"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-accent"
+            >
+              Enroly
+            </a>
+          </span>
           <div className="flex flex-wrap items-center justify-center gap-8">
             <Wakatime />
             <SpotifyPlayingSmall />
